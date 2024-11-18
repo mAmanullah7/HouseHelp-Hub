@@ -1,86 +1,100 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Customer Signup - A to Z Household Services</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f7f7f7;
-            margin: 0;
-            padding: 0;
-        }
-        .container {
-            width: 100%;
-            max-width: 400px;
-            margin: 100px auto;
-            padding: 20px;
-            background-color: #fff;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-        }
-        h2 {
-            text-align: center;
-            margin-bottom: 20px;
-        }
-        label {
-            display: block;
-            margin-bottom: 8px;
-        }
-        input[type="text"], input[type="password"] {
-            width: 100%;
-            padding: 10px;
-            margin-bottom: 20px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-        }
-        .button {
-            width: 100%;
-            padding: 10px;
-            background-color: #4CAF50;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-        .button:hover {
-            background-color: #45a049;
-        }
-        .link {
-            display: block;
-            text-align: center;
-            margin-top: 20px;
-        }
-        .link a {
-            color: orange;
-            text-decoration: none;
-        }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <h2>Customer Signup</h2>
-        <form action="/register-customer" method="POST">
-            <label for="email">Email ID (Username):</label>
-            <input type="text" id="email" name="email" required>
+{% extends 'layout.html' %}
 
-            <label for="password">Password:</label>
-            <input type="password" id="password" name="password" required>
+{% block style %}
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        background-color: #f7f7f7;
+        margin: 0;
+        padding: 0;
+    }
+    .container {
+        width: 100%;
+        max-width: 400px;
+        margin: 100px auto;
+        padding: 20px;
+        background-color: #fff;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+    h2 {
+        text-align: center;
+        margin-bottom: 20px;
+    }
+    label {
+        display: block;
+        margin-bottom: 8px;
+    }
+    input[type="text"], input[type="password"] {
+        width: 100%;
+        padding: 10px;
+        margin-bottom: 20px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+    }
+    .button {
+        width: 100%;
+        padding: 10px;
+        background-color: #4CAF50;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+    }
+    .button:hover {
+        background-color: #45a049;
+    }
+    .link {
+        display: block;
+        text-align: center;
+        margin-top: 20px;
+    }
+    .link a {
+        color: orange;
+        text-decoration: none;
+    }
+</style>
 
-            <label for="fullname">Fullname:</label>
-            <input type="text" id="fullname" name="fullname" required>
+{% endblock %}
 
-            <label for="address">Address:</label>
-            <input type="text" id="address" name="address" required>
+{% block title %}
+Customer Signup
+{% endblock %}
 
-            <label for="pincode">Pin Code:</label>
-            <input type="text" id="pincode" name="pincode" required>
-
-            <button type="submit" class="button">Register</button>
-        </form>
-        <div class="link">
-            <a href="/login">Login here</a>
-        </div>
+{% block content %}
+<h1 class="form-group">Customer Signup</h1>
+<form action="/customer_register" class="form">
+    <div class="form-group">
+        <label for="username" class="form-label">Username(Email):</label> 
+        <input type="email" id="email" name="email" required class="form-control">
     </div>
-</body>
-</html>
+    <div class="form-group">
+        <label for="password" class="form-label">Password</label>
+        <input type="password" name="Password" required class="form-control">    
+    </div>
+    <div class="form-grpup">
+        <label for="Confirm_password" class="form-label">Confirm Password</label>
+        <input type="password" name="Confirm_Password" required class="form-control">    
+    </div>
+    <div class="form-group">
+        <label for="Fullname" class="form-label">Full Name</label>
+        <input type="text" name="Fullname" required class="form-control">
+    </div>
+    <div class="form-grpup">
+        <label for="adress" class="form-label">Address</label>
+        <input type="text" name="Address" required class="form-control">
+
+    </div>
+    <div class="form-grpup">
+        <label for="pincode" class="form-label">Pincode</label>
+        <input type="text" name="Pincode" required class="form-control">
+    </div>
+    <div class="form-group">
+        <button type="submit" class="btn btn-primary">Register</button>
+</form>
+<div class="link">
+    Already have an account?
+    <a href="/login" class="btn btn-primary">Login here</a>
+</div>
+
+
+{% endblock %}
