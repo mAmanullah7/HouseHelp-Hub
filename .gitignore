@@ -1,4 +1,6 @@
 .env
 household
 __pycache__
+instance
+instance/*
 
