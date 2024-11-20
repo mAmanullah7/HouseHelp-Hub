@@ -5,7 +5,7 @@ from app import app
 
 load_dotenv()
 
-curr_dir=os.path.dirname(os.path.abspath(__file__))
+curr_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 print(curr_dir)   
 app.config['SECRET_KEY'] = os.getenv('SECRET_KEY')
 app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('SQLALCHEMY_DATABASE_URI')

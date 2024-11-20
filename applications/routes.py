@@ -2,6 +2,7 @@ from flask import Flask , render_template , request, flash, redirect, url_for, s
 from app import app
 from applications.models import db, User
 from werkzeug.security import generate_password_hash, check_password_hash
+from werkzeug.utils import secure_filename
 import os
 
 
@@ -113,14 +114,14 @@ def profRegister_post():
     
     password_hash=generate_password_hash(password)
 
-    # file_name=secure_filename(document.filename)
+    file_name=secure_filename(document.filename)
     
-    # if file_name!="":
-    #         file_exit=os.path.splitext(file_name)[1]
-    #         renamed_file_name=username+file_exit
-    #         if file_exit not in app.config['UPLOAD_EXTENSIONS']:
-    #             abort(400)
-    #         document.save(os.path.join(app.config['UPLOAD_PATH'],renamed_file_name))
+    if file_name!="":
+            file_exit=os.path.splitext(file_name)[1]
+            renamed_file_name=username+file_exit
+            if file_exit not in app.config['UPLOAD_EXTENSIONS']:
+                abort(400)
+            document.save(os.path.join(app.config['UPLOAD_PATH'],renamed_file_name))
 
     new_user=User(username=username, passhash=password_hash, name=name, service_type=service_type, experience=experience,address=adress, pincode=pincode)
     db.session.add(new_user)
