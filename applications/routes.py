@@ -1,13 +1,19 @@
-from flask import Flask , render_template , request, flash, redirect, url_for
+from flask import Flask , render_template , request, flash, redirect, url_for, session,abort
 from app import app
 from applications.models import db, User
 from werkzeug.security import generate_password_hash, check_password_hash
+import os
 
 
 
 @app.route('/')
 def index():
-    return render_template('index.html')
+    #user_id exist in session
+    if 'User_id' in session:
+        return render_template('index.html')
+    else:
+        flash('Please login to continue')
+        return redirect(url_for('login'))
 
 @app.route('/login')
 def login():
@@ -40,6 +46,8 @@ def login_post():
         flash('Password is incorrect')
         return redirect(url_for('login'))
     
+    session['User_id']=user.id
+    flash('Login successful')
     return redirect(url_for('index'))
 
                         
@@ -69,8 +77,8 @@ def custRegister_post():
     
 
     password_hash = generate_password_hash(password)
-
-    new_user=User(username=username, email=username, passhash=password_hash, name=name)
+    new_user=User(username=username, passhash=password_hash, name=name, address=adress, pincode=pincode)
+    
     db.session.add(new_user)
     db.session.commit()
     return redirect(url_for('login'))
@@ -86,7 +94,7 @@ def profRegister_post():
     name = request.form.get('fullname')
     service_type = request.form.get('service')
     experience = request.form.get('experience')
-    document = request.form.get('documents')
+    document = request.files.get('documents')
     adress=request.form.get('address')
     pincode=request.form.get('pincode')
 
@@ -105,7 +113,16 @@ def profRegister_post():
     
     password_hash=generate_password_hash(password)
 
-    new_user=User(username=username, email=username, passhash=password_hash, name=name, service_type=service_type, experience=experience, document=document)
+    # file_name=secure_filename(document.filename)
+    
+    # if file_name!="":
+    #         file_exit=os.path.splitext(file_name)[1]
+    #         renamed_file_name=username+file_exit
+    #         if file_exit not in app.config['UPLOAD_EXTENSIONS']:
+    #             abort(400)
+    #         document.save(os.path.join(app.config['UPLOAD_PATH'],renamed_file_name))
+
+    new_user=User(username=username, passhash=password_hash, name=name, service_type=service_type, experience=experience,address=adress, pincode=pincode)
     db.session.add(new_user)
     db.session.commit()
     return redirect(url_for('login'))
