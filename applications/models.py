@@ -1,6 +1,7 @@
 from datetime import datetime
 from app import app
 from flask_sqlalchemy import SQLAlchemy
+from werkzeug.security import generate_password_hash
 
 db=SQLAlchemy(app)
 
@@ -16,7 +17,7 @@ class User(db.Model):
 
     # Relationships
     service_requests = db.relationship('ServiceRequest', back_populates='customer', lazy=True)  # Link to customer requests
-    reviews = db.relationship('Review', back_populates='customer', lazy=True)  # Link to customer reviews
+    reviews = db.relationship('Review', back_populates='customer', lazy=True) # Link to customer reviews
 
 
 # Service - Represents the types of services available in the platform.
@@ -89,6 +90,14 @@ class Review(db.Model):
 
 with app.app_context():
     db.create_all()
+
+    admin = User.query.filter_by(is_admin=True).first()
+    if not admin:
+        passhash = generate_password_hash('admin')
+        admin=User(username ='admin', email='ullahaman072003@gmail.com',passhash=passhash,name='Admin',is_admin=True)
+        db.session.add(admin)
+        db.session.commit()
+
 
 
     

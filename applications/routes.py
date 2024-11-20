@@ -90,13 +90,26 @@ def profRegister_post():
     adress=request.form.get('address')
     pincode=request.form.get('pincode')
 
-    # if not  username or not password or not confirm_password or not name or not service_type or not experience or not adress or not pincode or not document:
-    #    flash('Please fill out the form', 'error')
-    #    return redirect(url_for('profRegister'))
+    if not  username or not password or not confirm_password or not name or not service_type or not experience or not adress or not pincode or not document:
+       flash('Please fill out all the feild', 'error')
+       return redirect(url_for('profRegister'))
+    
     if password != confirm_password:
         return "Passwords do not match!", 400
     
-    return " username : "+username+" password : "+password+" name : "+name+" service_type : "+service_type+" experience : "+experience+" adress : "+adress+" pincode : "+pincode
+    user=User.query.filter_by(username=username).first()
+
+    if user:
+        flash('Username already exists', 'error')
+        return redirect(url_for('profRegister'))
+    
+    password_hash=generate_password_hash(password)
+
+    new_user=User(username=username, email=username, passhash=password_hash, name=name, service_type=service_type, experience=experience, document=document)
+    db.session.add(new_user)
+    db.session.commit()
+    return redirect(url_for('login'))
+
     
     
 
