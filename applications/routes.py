@@ -3,18 +3,34 @@ from app import app
 from applications.models import db, User
 from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
+from functools import wraps
 import os
 
 
 
+def auth_required(func):
+    @wraps(func)
+    def inner(*args, **kwargs):
+        if 'User_id' in session:
+            return func(*args, **kwargs)
+        else:
+            flash('Please login to continue')
+            return redirect(url_for('login'))
+    return inner
+
+
 @app.route('/')
+@auth_required     #decorator
 def index():
+
+    return render_template('index.html')
+    #NOTE: This is the done by auth required decorator
     #user_id exist in session
-    if 'User_id' in session:
-        return render_template('index.html')
-    else:
-        flash('Please login to continue')
-        return redirect(url_for('login'))
+    # if 'User_id' in session:
+    #     return render_template('index.html')
+    # else:
+    #     flash('Please login to continue')
+    
 
 @app.route('/login')
 def login():
@@ -127,6 +143,67 @@ def profRegister_post():
     db.session.add(new_user)
     db.session.commit()
     return redirect(url_for('login'))
+
+@app.route('/profile')
+@auth_required
+def profile():
+
+    user=User.query.get(session['User_id'])
+    return render_template('profile.html', user=user)
+    # if 'User_id' in session:
+    #     user=User.query.get(session['User_id'])
+    #     return render_template('profile.html', user=user)
+    # else:
+    #     flash('Please login to continue')
+    
+
+@app.route('/profile', methods=['POST'])
+@auth_required
+
+def profile_post():
+    username = request.form.get('email')
+    curr_password = request.form.get('currentpassword')
+    password = request.form.get('newpassword')
+    name=request.form.get('name')
+
+    if not username or not curr_password or not password or not name:
+        flash('Please fill out all the fields')
+        return redirect(url_for('profile'))
+    
+    print(User.username)
+    if username != User.username:
+        new_username = User.query.filter_by(username=username).first()
+        if new_username:
+            flash('Username already exisits')
+            return redirect(url_for('profile'))
+        
+
+        
+    
+    user = User.query.get(session['User_id'])
+    if not check_password_hash(user.passhash, curr_password):
+        flash('Current password is incorrect')
+        return redirect(url_for('profile'))
+    
+    new_password_hash = generate_password_hash(password)
+    user.username = username
+    user.passhash = new_password_hash
+    user.name = name
+    print(user.username)
+    print(user.name)
+    db.session.commit()
+    flash('Profile updated successfully')
+    return redirect(url_for('profile'))
+
+
+    
+
+@app.route('/logout')
+@auth_required
+def logout():
+    session.pop('User_id')
+    return redirect(url_for('login'))
+    
 
     
     

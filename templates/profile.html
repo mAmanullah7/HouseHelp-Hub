@@ -1,0 +1,44 @@
+{% extends 'layout.html' %}
+
+{% block title %}
+Profile page
+{% endblock %}
+
+{% block content %}
+ <h1 class="display-1"> 
+    Hello
+    <span class="text-muted">@{{user.name}}</span>
+ </h1>
+  <a href="{{url_for('logout')}}" class="btn btn-danger">Logout</a>
+
+   <!-- form to chnage the password and username-->
+    <form action="" method="post">
+        <div class="form-group">
+            <label for="email" class="for-label">Username</label>
+            <input type="email" name="email" id="email" class="form-control" required>
+        </div>
+        <div class="form-group">
+            <label for="currentpassword" class="for-label">Current Password</label>
+            <input type="password" name="currentpassword" id="currentpassword" class="form-control" required>
+        </div>
+        <div class="form-group">
+            <label for="newpassword" class="form-label">New Password</label>
+            <input type="password" name="newpassword" id="newpassword" class="form-control" required>
+        </div>
+        <div class="form-group">
+            <label for="name" class="form-label">Full Name</label>
+            <input type="text" name="name" id="name" class="form-control">
+        </div>
+
+        <div class="form-group">
+            <button type="submit" class="btn btn-primary">Update</button>
+        </div>
+    </form>
+    
+
+
+
+{% endblock %}
+
+
+
