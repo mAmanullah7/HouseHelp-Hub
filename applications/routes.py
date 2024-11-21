@@ -184,8 +184,8 @@ def profile_post():
     user.username = username
     user.passhash = new_password_hash
     user.name = name
-    print(user.username)
-    print(user.name)
+    # print(user.username)
+    # print(user.name)
     db.session.commit()
     flash('Profile updated successfully')
     return redirect(url_for('profile'))
