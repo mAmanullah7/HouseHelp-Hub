@@ -159,7 +159,6 @@ def profile():
 
 @app.route('/profile', methods=['POST'])
 @auth_required
-
 def profile_post():
     username = request.form.get('email')
     curr_password = request.form.get('currentpassword')
@@ -168,22 +167,18 @@ def profile_post():
 
     if not username or not curr_password or not password or not name:
         flash('Please fill out all the fields')
-        return redirect(url_for('profile'))
-    
-    print(User.username)
-    if username != User.username:
-        new_username = User.query.filter_by(username=username).first()
-        if new_username:
-            flash('Username already exisits')
-            return redirect(url_for('profile'))
-        
-
-        
+        return redirect(url_for('profile'))  
     
     user = User.query.get(session['User_id'])
     if not check_password_hash(user.passhash, curr_password):
         flash('Current password is incorrect')
         return redirect(url_for('profile'))
+    
+    if username != user.username:
+        new_username = User.query.filter_by(username=username).first()
+        if new_username:
+            flash('Username already exisits')
+            return redirect(url_for('profile'))
     
     new_password_hash = generate_password_hash(password)
     user.username = username
