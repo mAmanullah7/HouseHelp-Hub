@@ -18,11 +18,27 @@ def auth_required(func):
             return redirect(url_for('login'))
     return inner
 
+def admin_required(func):
+    @wraps(func)
+    def inner(*args, **kwargs):
+        if 'User_id' not in session:
+            flash('Please login to continue')
+            return redirect(url_for('login'))
+        user=User.query.get(session['User_id'])
+        if not user.is_admin:
+            flash('You are not authorized to view this page')
+            return redirect(url_for('index'))
+        else:
+            return func(*args, **kwargs)
+    return inner
 
 @app.route('/')
 @auth_required     #decorator
 def index():
-
+    user=User.query.get(session['User_id'])
+    if user.is_admin:
+        return redirect(url_for('admin'))
+    
     return render_template('index.html')
     #NOTE: This is the done by auth required decorator
     #user_id exist in session
@@ -101,7 +117,6 @@ def custRegister_post():
     return redirect(url_for('login'))
     
     
-
 
 @app.route('/professional_register', methods=['POST'])
 def profRegister_post():
@@ -201,5 +216,39 @@ def logout():
     
 
     
-    
+#  --------------------------------------Admin Pages--------------------------------------------
 
+@app.route('/admin')
+# @auth_required
+@admin_required
+def admin():
+    return render_template('admin.html')
+
+@app.route('/services/add')
+# @auth_required
+@admin_required
+def add_service():
+    return render_template('add_service.html')
+
+@app.route('/services/<int:id>/')
+# @admin_required
+@auth_required
+def show_service(id):
+    return "show_service"
+
+
+@app.route('/services/<int:id>/edit')
+# @auth_required
+@admin_required
+def edit_service(id):
+    return "edit_service"
+
+@app.route('/services/<int:id>/delete')
+# @auth_required
+@admin_required
+def delete_service(id):
+    return "delete_service"
+
+
+
+    

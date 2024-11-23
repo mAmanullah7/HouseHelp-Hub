@@ -1,0 +1,54 @@
+{% extends 'layout.html' %}
+
+{% block title %}
+    Admin Dashboard
+{% endblock %}
+
+{% block content %}
+
+<h1 class="display-1">Admin Dashboard</h1>
+<a href="{{url_for('add_service')}}" class="btn btn-success">
+    <i class="fas fa-plus"></i>
+    New Service
+</a>
+
+<h2 class="display-2">Services</h2>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>#</th>
+            <th>Name</th>
+            <th>Price</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for service in services %}
+            <tr>
+                <td>{{service.id}}</td>
+                <td>{{service.name}}</td>
+                <td>{{service.price}}</td>
+                <td>
+
+                    <a href="{{url_for('show_services', id=service.id)}}" class="btn btn-primary" title="Show Service">
+                        <i class="fas fa-eye"></i>
+                    </a>
+                    
+                    <a href="{{url_for('edit_service', id=service.id)}}" class="btn btn-warning" title="Edit Service">
+                        <i class="fas fa-edit"></i>
+                    </a>
+                    <a href="{{url_for('delete_service', id=service.id)}}" class="btn btn-danger" title="Delete Service">
+                        <i class="fas fa-trash"></i>
+                    </a>
+                </td>
+            </tr>
+        {% endfor %}
+    </tbody>
+
+</table>
+    
+
+    
+
+{% endblock %}
