@@ -1,0 +1,30 @@
+{% extends 'layout.html' %}
+
+{% block title %}
+Edit Service
+{% endblock %}
+
+{% block content %}
+<h1 class="display-1">Edit Service</h1>
+<form action="" method="post" class="form">
+    <div class="mb-3">
+        <label for="name" class="form-label">Name</label>
+        <input type="text" class="form-control" id="name" name="name" value="{{service.service_name}}" required>
+    </div>
+    <div class="mb-3">
+        <label for="price" class="form-label">Price</label>
+        <input type="number" class="form-control" id="price" name="price" value="{{service.price}}" required>
+    </div>
+    <div class="mb-3">
+        <label for="description" class="form-label">Description</label>
+        <textarea class="form-control" id="description" name="description" rows="3">{{service.description}}</textarea>
+    </div>
+    <div class="mb-3">
+        <button type="submit" class="btn btn-success me-2">
+            Update  Service
+        </button>
+        <a href="{{ url_for('admin') }}" class="btn btn-secondary">Cancel</a>
+    </div>
+</form>
+
+{% endblock %}
