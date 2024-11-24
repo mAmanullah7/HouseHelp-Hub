@@ -1,0 +1,21 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2>Delete Professional</h2>
+    <div class="card">
+        <div class="card-body">
+            <h5>Name: {{ provider.name }}</h5>
+            <p>Service: {{ provider.service_type }}</p>
+            
+            <form method="POST">
+                <div class="alert alert-danger">
+                    Are you sure you want to delete this professional? This action cannot be undone.
+                </div>
+                <a href="{{ url_for('admin') }}" class="btn btn-secondary">Cancel</a>
+                <button type="submit" class="btn btn-danger">Delete</button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

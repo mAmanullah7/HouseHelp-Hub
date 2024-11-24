@@ -1,0 +1,44 @@
+<!-- templates/Requests/show.html -->
+{% extends 'layout.html' %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2>Service Request Details</h2>
+    <div class="card">
+        <div class="card-body">
+            <h5>Client: {{ request.client.name }}</h5>
+            <p>Service: {{ request.service.service_name }}</p>
+            <p>Status: {{ request.status }}</p>
+            <p>Description: {{ request.description }}</p>
+            <p>Created: {{ request.date_created.strftime('%Y-%m-%d') }}</p>
+
+            {% if not request.provider %}
+            <form method="POST" action="{{ url_for('assign_request', id=request.id) }}">
+                <div class="form-group">
+                    <label>Assign Professional:</label>
+                    <select name="provider_id" class="form-control" title="provider">
+                        {% for provider in providers %}
+                        <option value="{{ provider.id }}">{{ provider.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-primary mt-3">Assign</button>
+            </form>
+            {% endif %}
+
+            <form method="POST" action="{{ url_for('update_request_status', id=request.id) }}" class="mt-3">
+                <div class="form-group">
+                    <label>Update Status:</label>
+                    <select name="status" class="form-control" title="status">
+                        <option value="Pending">Pending</option>
+                        <option value="In Progress">In Progress</option>
+                        <option value="Completed">Completed</option>
+                        <option value="Cancelled">Cancelled</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-success mt-3">Update Status</button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

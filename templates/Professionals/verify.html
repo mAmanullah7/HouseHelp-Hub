@@ -1,0 +1,36 @@
+{% extends 'layout.html' %}
+
+{% block title %}
+Verify Professional
+{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2>Verify Professional</h2>
+    <div class="card mb-4">
+        <div class="card-body">
+            <h5>Name: {{ provider.name }}</h5>
+            <p>Service: {{ provider.service_type }}</p>
+            <p>Experience: {{ provider.experience }}</p>
+            
+            <!-- PDF Resume Display -->
+            <div class="mb-4">
+                <h5>Resume:</h5>
+                <embed src="{{ url_for('static', filename='pdfs/' + provider.username + '.pdf') }}"
+                       type="application/pdf"
+                       width="100%"
+                       height="600px"
+                       class="border rounded">
+            </div>
+
+            <form method="POST">
+                <div class="alert alert-warning">
+                    Are you sure you want to verify this professional?
+                </div>
+                <a href="{{ url_for('admin') }}" class="btn btn-secondary">Cancel</a>
+                <button type="submit" class="btn btn-success">Verify</button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

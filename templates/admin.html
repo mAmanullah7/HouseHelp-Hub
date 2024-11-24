@@ -5,49 +5,119 @@ Admin Dashboard
 {% endblock %}
 
 {% block content %}
-
 <h1 class="display-1">Admin Dashboard</h1>
-<a href="{{url_for('add_service')}}" class="btn btn-success">
-    <i class="fas fa-plus"></i>
-    New Service
-</a>
 
-<h2 class="display-2">Services</h2>
+<!-- Services Section -->
+<section class="mb-5">
+    <div class="d-flex justify-content-between align-items-center">
+        <h2 class="display-2">Services</h2>
+        <a href="{{url_for('add_service')}}" class="btn btn-success">
+            <i class="fas fa-plus"></i> New Service
+        </a>
+    </div>
 
-<table class="table">
-    <thead>
-        <tr>
-            <th>#</th>
-            <th>Service Name</th>
-            <th>Price</th>
-            <th>Actions</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for service in services %}
-        <tr>
-            <td>{{service.id}}</td>
-            <td>{{service.service_name}}</td>
-            <td>{{service.price}}</td>
-            <td>
-                <a href="{{url_for('show_service', id=service.id)}}" class="btn btn-primary" title="Show Service">
-                    <i class="fas fa-eye"></i>
-                    Show 
-                </a>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Service Name</th>
+                <th>Price</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for index, service in services %}
+            <tr>
+                <td>{{index}}</td>
+                <td>{{service.service_name}}</td>
+                <td>{{service.price}}</td>
+                <td>
+                    <a href="{{url_for('show_service', id=service.id)}}" class="btn btn-primary">
+                        <i class="fas fa-eye"></i> Show
+                    </a>
+                    <a href="{{url_for('edit_service', id=service.id)}}" class="btn btn-warning">
+                        <i class="fas fa-edit"></i> Edit
+                    </a>
+                    <a href="{{url_for('delete_service', id=service.id)}}" class="btn btn-danger">
+                        <i class="fas fa-trash"></i> Delete
+                    </a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</section>
 
-                <a href="{{url_for('edit_service', id=service.id)}}" class="btn btn-warning" title="Edit Service">
-                    <i class="fas fa-edit"></i>
-                    Edit
-                </a>
-                <a href="{{url_for('delete_service', id=service.id)}}" class="btn btn-danger" title="Delete Service">
-                    <i class="fas fa-trash"></i>
-                    Delete
-                </a>
-            </td>
-        </tr>
-        {% endfor %}
-    </tbody>
+<!-- Professionals Section -->
+<section class="mb-5">
+    <h2 class="display-2">Professionals</h2>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Name</th>
+                <th>Experience</th>
+                <th>Service Type</th>
+                <th>Status</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for provider in providers %}
+            <tr>
+                <td>{{loop.index}}</td>
+                <td>{{provider.name}}</td>
+                <td>{{provider.experience}}</td>
+                <td>{{provider.service_type}}</td>
+                <td>{{provider.is_verified}}</td>
+                <td>
+                    {% if not provider.is_verified %}
+                    <a href="{{url_for('verify_professional', id=provider.id)}}" class="btn btn-success">
+                        <i class="fas fa-check"></i> Verify
+                    </a>
+                    {% endif %}
+                    <a href="{{url_for('delete_professional', id=provider.id)}}" class="btn btn-danger">
+                        <i class="fas fa-trash"></i> Delete
+                    </a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</section>
 
-</table>
-
+<!-- Service Requests Section -->
+<section class="mb-5">
+    <h2 class="display-2">Service Requests</h2>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Client</th>
+                <th>Service</th>
+                <th>Provider</th>
+                <th>Status</th>
+                <th>Date Created</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for request in requests %}
+            <tr>
+                <td>{{loop.index}}</td>
+                <td>{{request.client.name}}</td>
+                <td>{{request.service.service_name}}</td>
+                <td>{{request.provider.name if request.provider else 'Unassigned'}}</td>
+                <td>{{request.status}}</td>
+                <td>{{request.date_created.strftime('%Y-%m-%d')}}</td>
+                <td>
+                    <a href="{{url_for('show_request', id=request.id)}}" class="btn btn-primary">
+                        <i class="fas fa-eye"></i> Details
+                    </a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</section>
 {% endblock %}
