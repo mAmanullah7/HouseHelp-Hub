@@ -16,7 +16,7 @@
             <form method="POST" action="{{ url_for('assign_request', id=request.id) }}">
                 <div class="form-group">
                     <label>Assign Professional:</label>
-                    <select name="provider_id" class="form-control" title="provider">
+                    <select name="provider_id" class="form-control" title="/">
                         {% for provider in providers %}
                         <option value="{{ provider.id }}">{{ provider.name }}</option>
                         {% endfor %}

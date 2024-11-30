@@ -1,142 +1,240 @@
 {% extends 'layout.html' %}
-{% block title %}
-Professional Signup
-{% endblock %}
-{% block style %}
 
+{% block title %}Professional Registration{% endblock %}
+
+{% block style %}
 <style>
-    body {
-        font-family: Arial, sans-serif;
-        background-color: #f7f7f7;
-        margin: 0;
-        padding: 0;
-    }
-    .container {
-        width: 100%;
-        max-width: 400px;
-        margin: 100px auto;
-        padding: 20px;
+    .form-container {
+        max-width: 600px;
+        margin: 2rem auto;
+        padding: 2rem;
         background-color: #fff;
-        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        border-radius: 10px;
+        box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
     }
-    h2 {
+    
+    .form-header {
         text-align: center;
-        margin-bottom: 20px;
+        margin-bottom: 2rem;
+        color: #333;
     }
-    label {
-        display: block;
-        margin-bottom: 8px;
+    
+    .form-group {
+        margin-bottom: 1.5rem;
     }
-    input[type="text"], input[type="password"], input[type="file"], input[type="number"], input[type="email"] {
-        width: 100%;
-        padding: 10px;
-        margin-bottom: 20px;
-        border: 1px solid #ccc;
+    
+    .form-label {
+        font-weight: 500;
+        color: #555;
+    }
+    
+    .form-control:focus {
+        border-color: #80bdff;
+        box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+    }
+    
+    .file-upload {
+        border: 2px dashed #ddd;
+        padding: 1rem;
+        text-align: center;
         border-radius: 5px;
     }
-    .button {
+    
+    .btn-register {
         width: 100%;
-        padding: 10px;
-        background-color: #4CAF50;
-        color: white;
-        border: none;
-        border-radius: 5px;
-        cursor: pointer;
+        padding: 0.8rem;
+        font-size: 1.1rem;
+        font-weight: 500;
     }
-    .button:hover {
-        background-color: #45a049;
-    }
-    .link {
-        display: block;
+    
+    .login-link {
         text-align: center;
-        margin-top: 20px;
-    }
-    .link a {
-        color: orange;
-        text-decoration: none;
+        margin-top: 1rem;
     }
 </style>
-
 {% endblock %}
-
 
 {% block content %}
-<h1>Professional Signup</h1>
-
-
-<form action="/professional_register" method="POST" enctype="multipart/form-data">
-    <div class="form-group">
-        <label for="email" class="form-label">Email ID (Username):</label>
-        <input type="text" id="email" name="email" required class="form-control">
-    </div>
-    <div class="form-group">
-        <label for="password" class="form-label">Password:</label>
-        <input type="password" id="password" name="password" required class="form-control">
-    </div>
-    <div class="form-group">
-        <label for="confirmpassword" class="form-label">Confirm Password:</label>
-        <input type="password" id="confirmpassword" name="confirm_password" required class="form-control">
-    </div>
-    <div class="form-group">
-        <label for="fullname" class="form-label">Full Name:</label>
-        <input type="text" id="fullname" name="fullname" required class="form-control">
-    </div>
-    <div class="form-group">
-        <label for="services" class="form-select" aria-label="Default select example">Choose a service:</label>
-    <select id="services" name="service" class="form-control">
-        <option disabled selected>Open this select menu</option>
-        <option value="ac_servicing">AC Servicing</option>
-        <option value="plumbing">Plumbing</option>
-        <option value="electrical_repair">Electrical Repair</option>
-        <option value="carpentry">Carpentry</option>
-    </select>
-    <!-- <button type="submit">Submit</button> -->
-    </div>
-    <div class="form-group">
-        <label for="experience" class="form-label">Experience (in years):</label>
-        <input type="text" id="experience" name="experience" required class="form-control">
-    </div>
-    <div class="form-group">
-        <label for="documents" class="form-label">Attach documents (single PDF):</label>
-        <input type="file" id="documents" name="documents" accept="application/pdf" required class="form-control">
-    </div>
-    <div class="form-group">
-        <label for="address" class="form-label">Address:</label>
-        <input type="text" id="address" name="address" required class="form-control">
-    </div>
-    <div class="form-group">
-        <label for="pincode" class="form-label">Pin Code:</label>
-        <input type="text" id="pincode" name="pincode" required class="form-control">
-    </div>
-    <div class="form-group">
-        <button type="submit" class="btn btn-primary">Register</button>
+<div class="form-container">
+    <div class="form-header">
+        <h2>Professional Registration</h2>
+        <p class="text-muted">Join our network of service providers</p>
     </div>
 
-</form>
-<div class="link">
-    Already have an account?
-    <a href={{url_for('login')}} class="btn btn-primary">Login here</a>
+    <form action="{{ url_for('profRegister_post') }}" method="POST" enctype="multipart/form-data" class="needs-validation" novalidate>
+        <!-- Email -->
+        <div class="form-group">
+            <label for="email" class="form-label">Email Address</label>
+            <input type="email" 
+                   class="form-control" 
+                   id="email" 
+                   name="email" 
+                   required
+                   pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$">
+            <div class="invalid-feedback">
+                Please provide a valid email address.
+            </div>
+        </div>
+
+        <!-- Password -->
+        <div class="form-group">
+            <label for="password" class="form-label">Password</label>
+            <input type="password" 
+                   class="form-control" 
+                   id="password" 
+                   name="password" 
+                   required
+                   minlength="8">
+            <div class="invalid-feedback">
+                Password must be at least 8 characters long.
+            </div>
+        </div>
+
+        <!-- Confirm Password -->
+        <div class="form-group">
+            <label for="confirm_password" class="form-label">Confirm Password</label>
+            <input type="password" 
+                   class="form-control" 
+                   id="confirm_password" 
+                   name="confirm_password" 
+                   required>
+            <div class="invalid-feedback">
+                Passwords must match.
+            </div>
+        </div>
+
+        <!-- Full Name -->
+        <div class="form-group">
+            <label for="fullname" class="form-label">Full Name</label>
+            <input type="text" 
+                   class="form-control" 
+                   id="fullname" 
+                   name="fullname" 
+                   required>
+            <div class="invalid-feedback">
+                Please provide your full name.
+            </div>
+        </div>
+
+        <!-- Service Selection -->
+        <div class="form-group">
+            <label for="service" class="form-label">Service Type</label>
+            <select class="form-select" 
+                    id="service" 
+                    name="service" 
+                    required>
+                <option value="" disabled selected>Select a service...</option>
+                {% for service in services %}
+                <option value="{{ service.service_name }}">{{ service.service_name }}</option>
+                {% endfor %}
+            </select>
+            <div class="invalid-feedback">
+                Please select a service type.
+            </div>
+        </div>
+
+        <!-- Experience -->
+        <div class="form-group">
+            <label for="experience" class="form-label">Experience (years)</label>
+            <input type="number" 
+                   class="form-control" 
+                   id="experience" 
+                   name="experience" 
+                   required
+                   min="0"
+                   max="50">
+            <div class="invalid-feedback">
+                Please provide valid years of experience.
+            </div>
+        </div>
+
+        <!-- Document Upload -->
+        <div class="form-group">
+            <label for="documents" class="form-label">Professional Documents</label>
+            <div class="file-upload">
+                <input type="file" 
+                       class="form-control" 
+                       id="documents" 
+                       name="documents" 
+                       accept=".pdf"
+                       required>
+                <small class="text-muted">Upload a single PDF file containing all your documents</small>
+            </div>
+            <div class="invalid-feedback">
+                Please upload your documents in PDF format.
+            </div>
+        </div>
+
+        <!-- Address -->
+        <div class="form-group">
+            <label for="address" class="form-label">Address</label>
+            <textarea class="form-control" 
+                      id="address" 
+                      name="address" 
+                      rows="3" 
+                      required></textarea>
+            <div class="invalid-feedback">
+                Please provide your address.
+            </div>
+        </div>
+
+        <!-- Pincode -->
+        <div class="form-group">
+            <label for="pincode" class="form-label">PIN Code</label>
+            <input type="text" 
+                   class="form-control" 
+                   id="pincode" 
+                   name="pincode" 
+                   required
+                   pattern="[0-9]{6}">
+            <div class="invalid-feedback">
+                Please provide a valid 6-digit PIN code.
+            </div>
+        </div>
+
+        <!-- Submit Button -->
+        <button type="submit" class="btn btn-primary btn-register">Register</button>
+    </form>
+
+    <div class="login-link">
+        Already have an account? 
+        <a href="{{ url_for('login') }}">Login here</a>
+    </div>
 </div>
 
+<!-- Form Validation Script -->
+{% block script %}
+<script>
+(function () {
+    'use strict'
+    
+    // Password confirmation validation
+    const password = document.getElementById("password")
+    const confirm_password = document.getElementById("confirm_password");
+    
+    function validatePassword() {
+        if(password.value != confirm_password.value) {
+            confirm_password.setCustomValidity("Passwords don't match");
+        } else {
+            confirm_password.setCustomValidity('');
+        }
+    }
+    
+    password.onchange = validatePassword;
+    confirm_password.onkeyup = validatePassword;
+
+    // Form validation
+    const forms = document.querySelectorAll('.needs-validation')
+    Array.from(forms).forEach(form => {
+        form.addEventListener('submit', event => {
+            if (!form.checkValidity()) {
+                event.preventDefault()
+                event.stopPropagation()
+            }
+            form.classList.add('was-validated')
+        }, false)
+    })
+})()
+</script>
 {% endblock %}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+{% endblock %}

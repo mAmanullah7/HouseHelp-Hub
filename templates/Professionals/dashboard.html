@@ -1,0 +1,89 @@
+{% extends 'layout.html' %}
+
+{% block title %}Professional Dashboard{% endblock %}
+
+{% block content %}
+<h1 class="display-1">Professional Dashboard</h1>
+
+<!-- Profile Summary -->
+<section class="mb-4">
+    <div class="card">
+        <div class="card-body">
+            <h2>Welcome, {{ user.name }}</h2>
+            <p>Service Type: {{ user.service_type }}</p>
+            <p>Experience: {{ user.experience }}</p>
+            <a href="{{ url_for('profile') }}" class="btn btn-primary">View/Edit Profile</a>
+        </div>
+    </div>
+</section>
+
+
+<!-- Active Service Requests -->
+<section class="mb-5">
+    <h2>Today's Service Requests</h2>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Customer Name</th>
+                <th>Contact</th>
+                <th>Location</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for request in pending_requests %}
+            <tr>
+                <td>{{ request.id }}</td>
+                <td>{{ request.client.name }}</td>
+                <td>{{ request.client.contact }}</td>
+                <td>{{ request.client.address }} ({{ request.client.pincode }})</td>
+                <td>
+                    <form method="POST" action="{{ url_for('handle_request', id=request.id) }}" class="d-inline">
+                        <button type="submit" name="action" value="accept" class="btn btn-success btn-sm">Accept</button>
+                        <button type="submit" name="action" value="reject" class="btn btn-danger btn-sm">Reject</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</section>
+
+
+<!-- Closed Service Requests -->
+<section class="mb-5">
+    <h2>Closed Services</h2>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Customer Name</th>
+                <th>Contact</th>
+                <th>Location</th>
+                <th>Date</th>
+                <th>Rating</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for request in completed_requests %}
+            <tr>
+                <td>{{ request.id }}</td>
+                <td>{{ request.client.name }}</td>
+                <td>{{ request.client.contact }}</td>
+                <td>{{ request.client.address }} ({{ request.client.pincode }})</td>
+                <td>
+                    {% if request.rating_by_client %}
+                        <span class="text-warning">
+                            {% for i in range(request.rating_by_client|int) %}⭐{% endfor %}
+                        </span>
+                    {% else %}
+                        Not rated
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</section>
+{% endblock %}

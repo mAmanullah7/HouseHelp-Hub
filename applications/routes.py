@@ -9,6 +9,13 @@ import os
 
 
 
+
+@app.context_processor 
+def inject_user():
+    return dict(user=User)
+
+
+
 def auth_required(func):
     @wraps(func)
     def inner(*args, **kwargs):
@@ -40,7 +47,11 @@ def index():
     if user.is_admin:
         return redirect(url_for('admin'))
     
-    return render_template('index.html')
+    if user.is_provider:
+        return redirect(url_for('professional_dashboard'))
+    
+
+    return redirect(url_for('customer_dashboard'))
     #NOTE: This is the done by auth required decorator
     #user_id exist in session
     # if 'User_id' in session:
@@ -55,7 +66,8 @@ def login():
 
 @app.route('/professional_register')
 def profRegister():
-    return render_template('prof.html')
+    services = Service.query.all()
+    return render_template('prof.html', services=services)
 
 @app.route('/customer_register')
 def custRegister():
@@ -126,47 +138,139 @@ def custRegister_post():
     
     
 
+# @app.route('/professional_register', methods=['POST'])
+# def profRegister_post():
+#     username=request.form.get('email')
+#     password=request.form.get('password')
+#     confirm_password=request.form.get('confirm_password')
+#     name = request.form.get('fullname')
+#     service_type = request.form.get('service')
+#     experience = request.form.get('experience')
+#     document = request.files.get('documents')
+#     adress=request.form.get('address')
+#     pincode=request.form.get('pincode')
+
+
+#     service = Service.query.filter_by(service_name=service_type).first()
+#     if not service:
+#         flash('Invalid service type')
+#         return redirect(url_for('profRegister'))
+    
+
+#     if not  username or not password or not confirm_password or not name or not service_type or not experience or not adress or not pincode or not document:
+#        flash('Please fill out all the feild', 'error')
+#        return redirect(url_for('profRegister'))
+    
+#     if password != confirm_password:
+#         return "Passwords do not match!", 400
+    
+#     user=User.query.filter_by(username=username).first()
+
+#     if user:
+#         flash('Username already exists', 'error')
+#         return redirect(url_for('profRegister'))
+    
+#     password_hash=generate_password_hash(password)
+
+#     file_name=secure_filename(document.filename)
+    
+#     if file_name!="":
+#             file_exit=os.path.splitext(file_name)[1]
+#             renamed_file_name=username+file_exit
+#             if file_exit not in app.config['UPLOAD_EXTENSIONS']:
+#                 abort(400)
+#             document.save(os.path.join(app.config['UPLOAD_PATH'],renamed_file_name))
+
+#     new_user = User(
+#         username=username, 
+#         passhash=password_hash, 
+#         name=name, 
+#         service_type=service_type,
+#         service_id=service.id,  # Add service_id
+#         experience=experience,
+#         address=adress, 
+#         pincode=pincode, 
+#         is_provider=True
+#     )
+
+#     db.session.add(new_user)
+#     db.session.commit()
+#     return redirect(url_for('login'))
+
+# routes.py
+
 @app.route('/professional_register', methods=['POST'])
 def profRegister_post():
-    username=request.form.get('email')
-    password=request.form.get('password')
-    confirm_password=request.form.get('confirm_password')
-    name = request.form.get('fullname')
-    service_type = request.form.get('service')
-    experience = request.form.get('experience')
-    document = request.files.get('documents')
-    adress=request.form.get('address')
-    pincode=request.form.get('pincode')
-    is_provider=True
+    try:
+        # Get form data
+        username = request.form.get('email')
+        password = request.form.get('password')
+        confirm_password = request.form.get('confirm_password')
+        name = request.form.get('fullname')
+        service_type = request.form.get('service')
+        experience = request.form.get('experience')
+        document = request.files.get('documents')
+        address = request.form.get('address')
+        pincode = request.form.get('pincode')
 
-    if not  username or not password or not confirm_password or not name or not service_type or not experience or not adress or not pincode or not document:
-       flash('Please fill out all the feild', 'error')
-       return redirect(url_for('profRegister'))
-    
-    if password != confirm_password:
-        return "Passwords do not match!", 400
-    
-    user=User.query.filter_by(username=username).first()
+        # Basic validation
+        if not all([username, password, confirm_password, name, 
+                   service_type, experience, address, pincode, document]):
+            flash('All fields are required', 'error')
+            return redirect(url_for('profRegister'))
 
-    if user:
-        flash('Username already exists', 'error')
+        # Check password match
+        if password != confirm_password:
+            flash('Passwords do not match', 'error')
+            return redirect(url_for('profRegister'))
+
+        # Check username uniqueness
+        if User.query.filter_by(username=username).first():
+            flash('Email already registered', 'error')
+            return redirect(url_for('profRegister'))
+
+        # Validate service
+        service = Service.query.filter_by(service_name=service_type).first()
+        if not service:
+            flash('Invalid service selected', 'error')
+            return redirect(url_for('profRegister'))
+
+        # Handle file upload
+        if document:
+            filename = secure_filename(document.filename)
+            file_ext = os.path.splitext(filename)[1].lower()
+            
+            if file_ext not in app.config['UPLOAD_EXTENSIONS']:
+                flash('Invalid document format. Please upload PDF only', 'error')
+                return redirect(url_for('profRegister'))
+
+            new_filename = f"{username}{file_ext}"
+            document.save(os.path.join(app.config['UPLOAD_PATH'], new_filename))
+
+        # Create new user
+        new_user = User(
+            username=username,
+            passhash=generate_password_hash(password),
+            name=name,
+            service_type=service_type,
+            service_id=service.id,
+            experience=experience,
+            address=address,
+            pincode=pincode,
+            documents=new_filename,
+            is_provider=True
+        )
+
+        db.session.add(new_user)
+        db.session.commit()
+
+        flash('Registration successful! Please wait for admin verification', 'success')
+        return redirect(url_for('login'))
+
+    except Exception as e:
+        db.session.rollback()
+        flash('Registration failed', 'error')
         return redirect(url_for('profRegister'))
-    
-    password_hash=generate_password_hash(password)
-
-    file_name=secure_filename(document.filename)
-    
-    if file_name!="":
-            file_exit=os.path.splitext(file_name)[1]
-            renamed_file_name=username+file_exit
-            if file_exit not in app.config['UPLOAD_EXTENSIONS']:
-                abort(400)
-            document.save(os.path.join(app.config['UPLOAD_PATH'],renamed_file_name))
-
-    new_user=User(username=username, passhash=password_hash, name=name, service_type=service_type, experience=experience,address=adress, pincode=pincode, is_provider=True)
-    db.session.add(new_user)
-    db.session.commit()
-    return redirect(url_for('login'))
 
 @app.route('/profile')
 @auth_required
@@ -392,21 +496,23 @@ def delete_professional_post(id):
 @app.route('/requests/<int:id>')
 @admin_required
 def show_request(id):
-    service_request = ServiceRequest.query.filter_by(id=id).first()
+
     
+   
+    service_request = ServiceRequest.query.get_or_404(id)
+
     if not service_request:
         flash('Service request not found')
         return redirect(url_for('admin'))
     
-    # Get available verified providers for this service
+    # Get available verified providers for this service type
     available_providers = User.query.filter_by(
         is_provider=True, 
         is_verified=True,
-        service_id=service_request.service_id
+        service_type=service_request.service.service_name  # Match by service name
     ).all()
     
     return render_template('Requests/show.html', request=service_request, providers=available_providers)
-
 
 
 
@@ -461,3 +567,151 @@ def update_request_status(id):
     flash('Status updated successfully')
     
     return redirect(url_for('admin'))
+
+
+
+# routes.py - Add these new routes
+
+# routes.py - Update professional dashboard route
+@app.route('/professional/dashboard')
+@auth_required
+def professional_dashboard():
+    user = User.query.get(session['User_id'])
+    if not user.is_provider:
+        flash('Unauthorized access')
+        return redirect(url_for('index'))
+    
+    # Get pending requests for provider's service type
+    pending_requests = ServiceRequest.query.filter_by(
+        req_type=user.service_type,
+        status='Pending'
+    ).order_by(ServiceRequest.date_created.desc()).all()
+    
+    # Get provider's assigned/completed requests
+    completed_requests = ServiceRequest.query.filter_by(
+        provider_id=user.id
+    ).filter(ServiceRequest.status.in_(['Completed', 'Assigned'])).all()
+    
+    print(f"Found {len(pending_requests)} pending requests")
+    print(f"Found {len(completed_requests)} completed requests")
+    
+    return render_template('Professionals/dashboard.html',
+                         user=user,
+                         pending_requests=pending_requests,
+                         completed_requests=completed_requests)
+    
+
+@app.route('/professional/request/<int:id>', methods=['POST'])
+@auth_required
+def handle_request(id):
+    user = User.query.get(session['User_id'])
+    if not user.is_provider:
+        flash('Unauthorized access')
+        return redirect(url_for('index'))
+    
+    request = ServiceRequest.query.get_or_404(id)
+    action = request.form.get('action')
+    
+    if action == 'accept':
+        request.provider_id = user.id
+        request.status = 'Assigned'
+        flash('Service request accepted successfully')
+    elif action == 'reject':
+        request.status = 'Rejected'
+        flash('Service request rejected')
+    
+    db.session.commit()
+    return redirect(url_for('professional_dashboard'))
+
+@app.route('/professional/request/<int:id>/complete', methods=['POST'])
+@auth_required
+def complete_request(id):
+    user = User.query.get(session['User_id'])
+    if not user.is_provider:
+        flash('Unauthorized access')
+        return redirect(url_for('index'))
+    
+    request = ServiceRequest.query.get_or_404(id)
+    request.status = 'Completed'
+    request.date_closed = datetime.utcnow()
+    
+    db.session.commit()
+    flash('Service request marked as completed')
+    return redirect(url_for('professional_dashboard'))
+
+
+# ------------------   Customer Routes    -------------------
+
+
+# routes.py
+
+@app.route('/customer/dashboard')
+@auth_required
+def customer_dashboard():
+    user = User.query.get(session['User_id'])
+    if not user.is_client:
+        flash('Unauthorized access')
+        return redirect(url_for('index'))
+    
+    # Get all services
+    services = Service.query.all()
+    
+    # Get user's service requests
+    service_requests = ServiceRequest.query.filter_by(client_id=user.id).order_by(ServiceRequest.date_created.desc()).all()
+    
+    return render_template('customer/dashboard.html', 
+                         user=user,
+                         services=services,
+                         requests=service_requests)
+
+@app.route('/customer/service/request/<int:service_id>', methods=['POST'])
+@auth_required
+def request_service(service_id):
+    user = User.query.get(session['User_id'])
+    if not user.is_client:
+        flash('Unauthorized access')
+        return redirect(url_for('index'))
+    
+    description = request.form.get('description')
+    service = Service.query.get_or_404(service_id)
+    
+    new_request = ServiceRequest(
+        service_id=service_id,
+        client_id=user.id,
+        req_type=service.service_name,
+        description=description,
+        status='Pending'
+    )
+    
+    db.session.add(new_request)
+    db.session.commit()
+    
+    flash('Service request submitted successfully')
+    return redirect(url_for('customer_dashboard'))
+
+@app.route('/customer/request/<int:request_id>/rate', methods=['POST'])
+@auth_required
+def rate_service(request_id):
+    user = User.query.get(session['User_id'])
+    service_request = ServiceRequest.query.get_or_404(request_id)
+    
+    if service_request.client_id != user.id:
+        flash('Unauthorized access')
+        return redirect(url_for('customer_dashboard'))
+    
+    rating = float(request.form.get('rating'))
+    review = request.form.get('review')
+    
+    service_request.rating_by_client = rating
+    service_request.review_by_client = review
+    
+    provider = service_request.provider
+    if provider:
+        # Update provider's average rating
+        total_ratings = provider.rating_count * provider.avg_rating + rating
+        provider.rating_count += 1
+        provider.avg_rating = total_ratings / provider.rating_count
+    
+    db.session.commit()
+    flash('Thank you for your rating!')
+    return redirect(url_for('customer_dashboard'))

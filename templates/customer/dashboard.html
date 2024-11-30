@@ -1,0 +1,125 @@
+<!-- templates/customer/dashboard.html -->
+{% extends 'layout.html' %}
+
+{% block title %}Customer Dashboard{% endblock %}
+
+{% block content %}
+<h1 class="display-1">Customer Dashboard</h1>
+
+<!-- Available Services -->
+<section class="mb-5">
+    <h2>Available Services</h2>
+    <div class="row row-cols-1 row-cols-md-3 g-4">
+        {% for service in services %}
+        <div class="col">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h5 class="card-title">{{ service.service_name }}</h5>
+                    <p class="card-text">{{ service.description }}</p>
+                    <p class="card-text"><small class="text-muted">Price: ₹{{ service.price }}</small></p>
+                    <button type="button" class="btn btn-primary" data-bs-toggle="modal" 
+                            data-bs-target="#requestModal{{ service.id }}">
+                        Request Service
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Request Modal -->
+        <div class="modal fade" id="requestModal{{ service.id }}" tabindex="-1">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Request {{ service.service_name }}</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <form action="{{ url_for('request_service', service_id=service.id) }}" method="POST">
+                        <div class="modal-body">
+                            <div class="mb-3">
+                                <label for="description" class="form-label">Description</label>
+                                <textarea class="form-control" id="description" name="description" 
+                                          rows="3" required></textarea>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                            <button type="submit" class="btn btn-primary">Submit Request</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</section>
+
+<!-- Service Requests -->
+<section class="mb-5">
+    <h2>My Service Requests</h2>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Service</th>
+                <th>Provider</th>
+                <th>Status</th>
+                <th>Date</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for req in requests %}
+            <tr>
+                <td>{{ req.service.service_name }}</td>
+                <td>{{ req.provider.name if req.provider else 'Unassigned' }}</td>
+                <td>{{ req.status }}</td>
+                <td>{{ req.date_created.strftime('%Y-%m-%d') }}</td>
+                <td>
+                    {% if req.status == 'Completed' and not req.rating_by_client %}
+                    <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" 
+                            data-bs-target="#ratingModal{{ req.id }}">
+                        Rate Service
+                    </button>
+                    {% endif %}
+                </td>
+            </tr>
+
+            <!-- Rating Modal -->
+            {% if req.status == 'Completed' and not req.rating_by_client %}
+            <div class="modal fade" id="ratingModal{{ req.id }}" tabindex="-1">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">Rate Service</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                        </div>
+                        <form action="{{ url_for('rate_service', request_id=req.id) }}" method="POST">
+                            <div class="modal-body">
+                                <div class="mb-3">
+                                    <label class="form-label">Rating</label>
+                                    <select class="form-select" name="rating" required>
+                                        <option value="5">⭐⭐⭐⭐⭐ Excellent</option>
+                                        <option value="4">⭐⭐⭐⭐ Very Good</option>
+                                        <option value="3">⭐⭐⭐ Good</option>
+                                        <option value="2">⭐⭐ Fair</option>
+                                        <option value="1">⭐ Poor</option>
+                                    </select>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Review</label>
+                                    <textarea class="form-control" name="review" rows="3" required></textarea>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                <button type="submit" class="btn btn-primary">Submit Rating</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+            {% endfor %}
+        </tbody>
+    </table>
+</section>
+{% endblock %}
