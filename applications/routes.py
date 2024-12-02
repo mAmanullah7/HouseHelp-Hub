@@ -44,23 +44,19 @@ def admin_required(func):
     return inner
 
 @app.route('/')
-@auth_required     #decorator
 def index():
-    user=User.query.get(session['User_id'])
-    if user.is_admin:
-        return redirect(url_for('admin'))
+    if 'User_id' in session:
+        user = User.query.get(session['User_id'])
+        
+        if user.is_admin:
+            return redirect(url_for('admin'))
+        
+        if user.is_provider:
+            return redirect(url_for('professional_dashboard'))
+        
+        return redirect(url_for('customer_dashboard'))
     
-    if user.is_provider:
-        return redirect(url_for('professional_dashboard'))
-    
-
-    return redirect(url_for('customer_dashboard'))
-    #NOTE: This is the done by auth required decorator
-    #user_id exist in session
-    # if 'User_id' in session:
-    #     return render_template('index.html')
-    # else:
-    #     flash('Please login to continue')
+    return render_template('index.html')
     
 
 @app.route('/login')
@@ -956,59 +952,112 @@ def admin_search():
 
 
 
-
 @app.route('/professional/search')
 @auth_required
 def professional_search():
-    user_id = session.get('User_id')
-    if not user_id:
-        return redirect(url_for('login'))
+    # Get search parameters
+    current_user = User.query.get(session['User_id'])
+    date_from = request.args.get('date_from')
+    date_to = request.args.get('date_to')
+    location = request.args.get('location', '')
+    pincode = request.args.get('pincode', '')
+    status = request.args.get('status')
+    sort_by = request.args.get('sort_by', 'date_desc')
+
+    # Base query with aliased joins
+    query = ServiceRequest.query\
+        .filter(ServiceRequest.provider_id == current_user.id)
+
+    # Apply filters with proper table aliases
+    if location or pincode:
+        query = query.join(User, ServiceRequest.client_id == User.id)
+        
+        if location:
+            query = query.filter(User.address.ilike(f'%{location}%'))
+        if pincode:
+            query = query.filter(User.pincode == pincode)
+
+    if date_from:
+        query = query.filter(ServiceRequest.date_created >= datetime.strptime(date_from, '%Y-%m-%d'))
+    if date_to:
+        query = query.filter(ServiceRequest.date_created <= datetime.strptime(date_to, '%Y-%m-%d'))
+    if status:
+        query = query.filter(ServiceRequest.status == status)
+
+    # Apply sorting
+    if sort_by == 'date_desc':
+        query = query.order_by(ServiceRequest.date_created.desc())
+    elif sort_by == 'date_asc':
+        query = query.order_by(ServiceRequest.date_created.asc())
+    elif sort_by == 'status':
+        query = query.order_by(ServiceRequest.status)
+
+    results = query.all()
+    return render_template('professionals/professional_search.html', 
+                         results=results,
+                         date_from=date_from,
+                         date_to=date_to,
+                         location=location,
+                         pincode=pincode,
+                         status=status,
+                         sort_by=sort_by)
+
+
+# routes.py
+@app.route('/customer/search')
+@auth_required
+def customer_search():
+    # Get search parameters
+    service_name = request.args.get('service_name', '')
+    pincode = request.args.get('pincode', '')
+    price_min = request.args.get('price_min', type=int)
+    price_max = request.args.get('price_max', type=int)
+    rating = request.args.get('rating', type=int)
+    sort_by = request.args.get('sort_by', 'rating_desc')
+
+    # Base query
+    query = Service.query
+
+    # Apply filters
+    if service_name:
+        query = query.filter(Service.service_name.ilike(f'%{service_name}%'))
     
-    user = User.query.get(user_id)
-    if not user or not user.is_provider:
-        abort(403)
+    if price_min:
+        query = query.filter(Service.price >= price_min)
+    if price_max:
+        query = query.filter(Service.price <= price_max)
 
-    search_type = request.args.get('search_type', '')
-    search_query = request.args.get('search_query', '')
-    category = request.args.get('category', 'pending')
+    # Apply sorting
+    if sort_by == 'price_asc':
+        query = query.order_by(Service.price.asc())
+    elif sort_by == 'price_desc':
+        query = query.order_by(Service.price.desc())
+    elif sort_by == 'name_asc':
+        query = query.order_by(Service.service_name.asc())
     
-    base_query = ServiceRequest.query\
-        .join(Service, ServiceRequest.service_id == Service.id)\
-        .join(User, ServiceRequest.client_id == User.id)
+    services = query.all()
 
-    if category == 'pending':
-        base_query = base_query.filter(
-            ServiceRequest.provider_id.is_(None),
-            ServiceRequest.status == 'pending'
-        )
-    elif category == 'active':
-        base_query = base_query.filter(
-            ServiceRequest.provider_id == user_id,
-            ServiceRequest.status.in_(['accepted', 'in_progress'])
-        )
-    else:  # history
-        base_query = base_query.filter(
-            ServiceRequest.provider_id == user_id,
-            ServiceRequest.status == 'completed'
-        )
+    # Filter providers by pincode and rating if specified
+    if pincode or rating:
+        for service in services:
+            filtered_providers = []
+            for provider in service.providers:
+                if provider.is_verified and not provider.is_blocked:
+                    if pincode and str(provider.pincode) != str(pincode):
+                        continue
+                    if rating and provider.avg_rating < rating:
+                        continue
+                    filtered_providers.append(provider)
+            service.filtered_providers = filtered_providers
+    else:
+        for service in services:
+            service.filtered_providers = [p for p in service.providers if p.is_verified and not p.is_blocked]
 
-    if search_type and search_query:
-        if search_type == 'date':
-            try:
-                search_date = datetime.strptime(search_query, '%Y-%m-%d')
-                base_query = base_query.filter(ServiceRequest.date_created >= search_date)
-            except ValueError:
-                flash('Invalid date format', 'error')
-        elif search_type == 'location':
-            base_query = base_query.filter(User.address.ilike(f'%{search_query}%'))
-        elif search_type == 'pincode':
-            base_query = base_query.filter(User.pincode == search_query)
-
-    requests = base_query.order_by(ServiceRequest.date_created.desc()).all()
-    
-    return render_template('professionals/professional_search.html',
-                         requests=requests,
-                         user=user,
-                         search_type=search_type,
-                         search_query=search_query,
-                         category=category)
+    return render_template('customer/customer_search.html',
+                         services=services,
+                         service_name=service_name,
+                         pincode=pincode,
+                         price_min=price_min,
+                         price_max=price_max,
+                         rating=rating,
+                         sort_by=sort_by)

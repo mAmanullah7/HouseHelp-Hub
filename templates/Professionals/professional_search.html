@@ -1,0 +1,133 @@
+<!-- templates/professional_search.html -->
+{% extends 'layout.html' %}
+
+{% block title %}Search Service Requests{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <h1 class="display-4 mb-4">Search Service Requests</h1>
+
+    <!-- Search Filters -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <form method="GET" action="{{ url_for('professional_search') }}" id="searchForm">
+                <div class="row g-3">
+                    <!-- Date Range -->
+                    <div class="col-md-3">
+                        <label class="form-label">From Date</label>
+                        <input type="date" class="form-control" name="date_from" value="{{ date_from }}">
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">To Date</label>
+                        <input type="date" class="form-control" name="date_to" value="{{ date_to }}">
+                    </div>
+
+                    <!-- Location Filter -->
+                    <div class="col-md-3">
+                        <label class="form-label">Location</label>
+                        <input type="text" class="form-control" name="location" 
+                               placeholder="Search by location" value="{{ location }}">
+                    </div>
+
+                    <!-- Pincode Filter -->
+                    <div class="col-md-3">
+                        <label class="form-label">Pincode</label>
+                        <input type="number" class="form-control" name="pincode" 
+                               placeholder="Search by pincode" value="{{ pincode }}">
+                    </div>
+
+                    <!-- Status Filter -->
+                    <div class="col-md-3">
+                        <label class="form-label">Status</label>
+                        <select class="form-select" name="status">
+                            <option value="">All Status</option>
+                            <option value="pending" {% if status == 'pending' %}selected{% endif %}>Pending</option>
+                            <option value="in_progress" {% if status == 'in_progress' %}selected{% endif %}>In Progress</option>
+                            <option value="completed" {% if status == 'completed' %}selected{% endif %}>Completed</option>
+                        </select>
+                    </div>
+
+                    <!-- Sort Options -->
+                    <div class="col-md-3">
+                        <label class="form-label">Sort By</label>
+                        <select class="form-select" name="sort_by">
+                            <option value="date_desc" {% if sort_by == 'date_desc' %}selected{% endif %}>Newest First</option>
+                            <option value="date_asc" {% if sort_by == 'date_asc' %}selected{% endif %}>Oldest First</option>
+                            <option value="status" {% if sort_by == 'status' %}selected{% endif %}>Status</option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-6 d-flex align-items-end">
+                        <button type="submit" class="btn btn-primary me-2">
+                            <i class="fas fa-search"></i> Search
+                        </button>
+                        <a href="{{ url_for('professional_search') }}" class="btn btn-secondary">
+                            <i class="fas fa-undo"></i> Reset
+                        </a>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Search Results -->
+    <div class="card">
+        <div class="card-header bg-light">
+            <h2 class="h4 mb-0">Search Results</h2>
+        </div>
+        <div class="card-body">
+            {% if results %}
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Customer</th>
+                            <th>Location</th>
+                            <th>Pincode</th>
+                            <th>Service Type</th>
+                            <th>Description</th>
+                            <th>Status</th>
+                            <th>Date</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for request in results %}
+                        <tr>
+                            <td>
+                                <img src="https://api.dicebear.com/9.x/lorelei/svg?seed={{request.client.username}}" 
+                                     class="rounded-circle me-2" style="width: 32px; height: 32px;">
+                                {{ request.client.name }}
+                            </td>
+                            <td>{{ request.client.address }}</td>
+                            <td>{{ request.client.pincode }}</td>
+                            <td>{{ request.service.service_name }}</td>
+                            <td>{{ request.description }}</td>
+                            <td>
+                                <span class="badge {% if request.status == 'completed' %}bg-success
+                                                  {% elif request.status == 'in_progress' %}bg-info
+                                                  {% else %}bg-warning{% endif %}">
+                                    {{ request.status }}
+                                </span>
+                            </td>
+                            <td>{{ request.date_created.strftime('%Y-%m-%d %H:%M') }}</td>
+                            <td>
+                                {% if request.status != 'completed' %}
+                                <button class="btn btn-warning btn-sm" data-bs-toggle="modal"
+                                        data-bs-target="#updateModal{{ request.id }}">
+                                    Update
+                                </button>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <p class="text-center text-muted my-5">No service requests found matching your criteria</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
