@@ -689,8 +689,6 @@ def close_request(request_id):
 
 
 
-# routes.py - Add these new routes
-
 # routes.py - Update professional dashboard route
 @app.route('/professional/dashboard')
 @auth_required

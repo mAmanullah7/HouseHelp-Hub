@@ -200,7 +200,7 @@
                             <td>{{ request.client.name }}</td>
                             <td>{{ request.provider.name if request.provider else 'Unassigned' }}</td>
                             <td>{{ request.date_created.strftime('%Y-%m-%d') }}</td>
-                            <td>{{ request.date_completed.strftime('%Y-%m-%d') if request.date_completed else 'Pending' }}</td>
+                            <td>{{ request.date_closed.strftime('%Y-%m-%d') if request.date_closed else 'Pending' }}</td>
                             <td>
                                 <span class="badge 
                                     {% if request.status == 'Completed' %}bg-success
