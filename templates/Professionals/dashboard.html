@@ -3,87 +3,210 @@
 {% block title %}Professional Dashboard{% endblock %}
 
 {% block content %}
-<h1 class="display-1">Professional Dashboard</h1>
-
-<!-- Profile Summary -->
-<section class="mb-4">
-    <div class="card">
-        <div class="card-body">
-            <h2>Welcome, {{ user.name }}</h2>
-            <p>Service Type: {{ user.service_type }}</p>
-            <p>Experience: {{ user.experience }}</p>
-            <a href="{{ url_for('profile') }}" class="btn btn-primary">View/Edit Profile</a>
+<div class="container py-4">
+    <!-- Profile Header -->
+    <div class="row mb-4">
+        <div class="col">
+            <h1 class="display-4">Welcome, {{ user.name }}</h1>
+            <p class="lead">Service: {{ user.service_type }}</p>
+            <div class="d-flex align-items-center mb-3">
+                <div class="me-3">
+                    <span class="badge bg-success">{{ user.rating_count }} Reviews</span>
+                    <span class="text-warning ms-2">
+                        {% for i in range(user.avg_rating|round|int) %}⭐{% endfor %}
+                    </span>
+                </div>
+                <a href="{{ url_for('profile') }}" class="btn btn-outline-primary btn-sm">Edit Profile</a>
+            </div>
         </div>
     </div>
-</section>
 
+    <!-- New Service Requests -->
+    <section class="mb-5">
+        <h2>New Requests</h2>
+        <div class="table-responsive">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Customer</th>
+                        <th>Location</th>
+                        <th>Description</th>
+                        <th>Requested On</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for request in pending_requests %}
+                    <tr>
+                        <td>
+                            <img src="https://api.dicebear.com/9.x/lorelei/svg?seed={{request.client.username}}" 
+                                 class="rounded-circle me-2" style="width: 32px; height: 32px;">
+                            {{ request.client.name }}
+                        </td>
+                        <td>{{ request.client.address }} ({{ request.client.pincode }})</td>
+                        <td>{{ request.description }}</td>
+                        <td>{{ request.date_created.strftime('%Y-%m-%d %H:%M') }}</td>
+                        <td>
+                            <form method="POST" action="{{ url_for('handle_request', id=request.id) }}" class="d-inline">
+                                <button type="submit" name="action" value="accept" 
+                                        class="btn btn-success btn-sm">Accept</button>
+                                <button type="submit" name="action" value="reject" 
+                                        class="btn btn-danger btn-sm">Reject</button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </section>
 
-<!-- Active Service Requests -->
-<section class="mb-5">
-    <h2>Today's Service Requests</h2>
-    <table class="table">
-        <thead>
-            <tr>
-                <th>ID</th>
-                <th>Customer Name</th>
-                <th>Contact</th>
-                <th>Location</th>
-                <th>Actions</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for request in pending_requests %}
-            <tr>
-                <td>{{ request.id }}</td>
-                <td>{{ request.client.name }}</td>
-                <td>{{ request.client.contact }}</td>
-                <td>{{ request.client.address }} ({{ request.client.pincode }})</td>
-                <td>
-                    <form method="POST" action="{{ url_for('handle_request', id=request.id) }}" class="d-inline">
-                        <button type="submit" name="action" value="accept" class="btn btn-success btn-sm">Accept</button>
-                        <button type="submit" name="action" value="reject" class="btn btn-danger btn-sm">Reject</button>
-                    </form>
-                </td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-</section>
+    <!-- Active Services -->
+    <section class="mb-5">
+        <h2>Active Services</h2>
+        <div class="table-responsive">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Customer</th>
+                        <th>Service</th>
+                        <th>Status</th>
+                        <th>Started</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for request in active_requests %}
+                    <tr>
+                        <td>{{ request.client.name }}</td>
+                        <td>{{ request.service.service_name }}</td>
+                        <td>
+                            <span class="badge bg-info">In Progress</span>
+                        </td>
+                        <td>{{ request.date_created.strftime('%Y-%m-%d %H:%M') }}</td>
+                        <td>
+                            <button class="btn btn-warning btn-sm" data-bs-toggle="modal"
+                                    data-bs-target="#updateModal{{ request.id }}">
+                                Update Status
+                            </button>
+                            <button class="btn btn-danger btn-sm" data-bs-toggle="modal"
+                                    data-bs-target="#reportModal{{ request.id }}">
+                                Report Issue
+                            </button>
+                        </td>
+                    </tr>
 
+                    <!-- Status Update Modal -->
+                    <div class="modal fade" id="updateModal{{ request.id }}">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title">Update Service Status</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                </div>
+                                <form action="{{ url_for('update_service_status', request_id=request.id) }}" method="POST">
+                                    <div class="modal-body">
+                                        <div class="mb-3">
+                                            <label class="form-label">Progress Status</label>
+                                            <select class="form-select" name="status" required>
+                                                <option value="started">Started</option>
+                                                <option value="in_progress">In Progress</option>
+                                                <option value="near_completion">Near Completion</option>
+                                                <option value="completed">Completed</option>
+                                            </select>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-label">Notes</label>
+                                            <textarea class="form-control" name="notes" rows="3"></textarea>
+                                        </div>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                        <button type="submit" class="btn btn-primary">Update</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
 
-<!-- Closed Service Requests -->
-<section class="mb-5">
-    <h2>Closed Services</h2>
-    <table class="table">
-        <thead>
-            <tr>
-                <th>ID</th>
-                <th>Customer Name</th>
-                <th>Contact</th>
-                <th>Location</th>
-                <th>Date</th>
-                <th>Rating</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for request in completed_requests %}
-            <tr>
-                <td>{{ request.id }}</td>
-                <td>{{ request.client.name }}</td>
-                <td>{{ request.client.contact }}</td>
-                <td>{{ request.client.address }} ({{ request.client.pincode }})</td>
-                <td>
-                    {% if request.rating_by_client %}
-                        <span class="text-warning">
-                            {% for i in range(request.rating_by_client|int) %}⭐{% endfor %}
-                        </span>
-                    {% else %}
-                        Not rated
-                    {% endif %}
-                </td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-</section>
+                    <!-- Report Modal -->
+                    <div class="modal fade" id="reportModal{{ request.id }}">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title">Report Issue</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                </div>
+                                <form action="{{ url_for('report_issue', request_id=request.id) }}" method="POST">
+                                    <div class="modal-body">
+                                        <div class="mb-3">
+                                            <label class="form-label">Issue Type</label>
+                                            <select class="form-select" name="issue_type" required>
+                                                <option value="inappropriate">Inappropriate Behavior</option>
+                                                <option value="unsafe">Unsafe Conditions</option>
+                                                <option value="fraud">Fraudulent Activity</option>
+                                                <option value="other">Other</option>
+                                            </select>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-label">Description</label>
+                                            <textarea class="form-control" name="description" rows="3" required></textarea>
+                                        </div>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                        <button type="submit" class="btn btn-danger">Submit Report</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- Service History -->
+    <section class="mb-5">
+        <h2>Service History</h2>
+        <div class="table-responsive">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Customer</th>
+                        <th>Service</th>
+                        <th>Completed On</th>
+                        <th>Duration</th>
+                        <th>Rating</th>
+                        <th>Review</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for request in completed_requests %}
+                    <tr>
+                        <td>{{ request.client.name }}</td>
+                        <td>{{ request.service.service_name }}</td>
+                        <td>{{ request.date_closed.strftime('%Y-%m-%d %H:%M') }}</td>
+                        <td>
+                            {% set duration = request.date_closed - request.date_created %}
+                            {{ duration.days }} days {{ duration.seconds // 3600 }} hours
+                        </td>
+                        <td>
+                            {% if request.rating_by_client %}
+                                <span class="text-warning">
+                                    {% for i in range(request.rating_by_client|round|int) %}⭐{% endfor %}
+                                </span>
+                            {% else %}
+                                Not rated
+                            {% endif %}
+                        </td>
+                        <td>{{ request.review_by_client or 'No review' }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </section>
+</div>
 {% endblock %}

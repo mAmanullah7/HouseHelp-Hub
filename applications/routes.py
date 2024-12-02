@@ -1,6 +1,6 @@
 from flask import Flask , render_template , request, flash, redirect, url_for, session, abort
 from app import app
-from applications.models import db, User, Service, ServiceRequest
+from applications.models import db, User, Service, ServiceRequest, UserActivity, Review, Report
 from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
 from functools import wraps
@@ -606,6 +606,87 @@ def update_request_status(id):
     
     return redirect(url_for('admin'))
 
+@app.route('/professional/request/<int:request_id>/update-status', methods=['POST'])
+@auth_required
+def update_service_status(request_id):
+    user = User.query.get(session['User_id'])
+    if not user.is_provider:
+        flash('Unauthorized access')
+        return redirect(url_for('index'))
+    
+    update_request = ServiceRequest.query.get_or_404(request_id)
+    if update_request.provider_id != user.id:
+        flash('Unauthorized access')
+        return redirect(url_for('professional_dashboard'))
+    
+    status = request.form.get('status')
+    notes = request.form.get('notes')
+    
+    # Add activity log
+    activity = UserActivity(
+        user_id=user.id,
+        activity_type='status_update',
+        description=f"Updated request {request_id} status to {status}: {notes}"
+    )
+    
+    request.status = status
+    db.session.add(activity)
+    db.session.commit()
+    
+    flash('Service status updated successfully')
+    return redirect(url_for('professional_dashboard'))
+
+@app.route('/professional/request/<int:request_id>/report', methods=['POST'])
+@auth_required
+def report_issue(request_id):
+    user = User.query.get(session['User_id'])
+    if not user.is_provider:
+        flash('Unauthorized access')
+        return redirect(url_for('index'))
+    
+    request = ServiceRequest.query.get_or_404(request_id)
+    if request.provider_id != user.id:
+        flash('Unauthorized access')
+        return redirect(url_for('professional_dashboard'))
+    
+    issue_type = request.form.get('issue_type')
+    description = request.form.get('description')
+    
+    report = Report(
+        request_id=request_id,
+        reported_by_id=user.id,
+        issue_type=issue_type,
+        description=description
+    )
+    
+    db.session.add(report)
+    db.session.commit()
+    
+    flash('Issue reported successfully')
+    return redirect(url_for('professional_dashboard'))
+
+@app.route('/customer/request/<int:request_id>/close', methods=['POST'])
+@auth_required
+def close_request(request_id):
+    request = ServiceRequest.query.get_or_404(request_id)
+    
+    # Verify the request belongs to current user
+    if request.client_id != session['User_id']:
+        flash('Unauthorized access')
+        return redirect(url_for('customer_dashboard'))
+    
+    # Only in-progress requests can be closed
+    if request.status != 'In Progress':
+        flash('Only in-progress requests can be closed')
+        return redirect(url_for('customer_dashboard'))
+    
+    request.status = 'Completed'
+    request.date_closed = datetime.utcnow()
+    
+    db.session.commit()
+    flash('Service request closed successfully')
+    return redirect(url_for('customer_dashboard'))
+
 
 
 # routes.py - Add these new routes
@@ -624,11 +705,18 @@ def professional_dashboard():
         req_type=user.service_type,
         status='Pending'
     ).order_by(ServiceRequest.date_created.desc()).all()
+
+    active_requests = ServiceRequest.query.filter_by(
+        provider_id=user.id,
+        status='In Progress'
+    ).order_by(ServiceRequest.date_created.desc()).all()
+    
     
     # Get provider's assigned/completed requests
     completed_requests = ServiceRequest.query.filter_by(
-        provider_id=user.id
-    ).filter(ServiceRequest.status.in_(['Completed', 'Assigned'])).all()
+        provider_id=user.id,
+        status = 'Completed'
+    ).order_by(ServiceRequest.date_created.desc()).all()
     
     print(f"Found {len(pending_requests)} pending requests")
     print(f"Found {len(completed_requests)} completed requests")
@@ -636,6 +724,7 @@ def professional_dashboard():
     return render_template('Professionals/dashboard.html',
                          user=user,
                          pending_requests=pending_requests,
+                         active_requests=active_requests,
                          completed_requests=completed_requests)
     
 
@@ -650,15 +739,14 @@ def handle_request(id):
     service_request = ServiceRequest.query.get_or_404(id)
     action = request.form.get('action')
 
-    
     if action == 'accept':
+        service_request.status = 'In Progress'
         service_request.provider_id = user.id
-        service_request.status = 'Assigned'
-        flash('Service request accepted successfully')
+
     elif action == 'reject':
         service_request.status = 'Rejected'
-        flash('Service request rejected')
-    
+  
+
     db.session.commit()
     return redirect(url_for('professional_dashboard'))
 
@@ -728,6 +816,7 @@ def request_service(service_id):
     flash('Service request submitted successfully')
     return redirect(url_for('customer_dashboard'))
 
+
 @app.route('/customer/request/<int:request_id>/rate', methods=['POST'])
 @auth_required
 def rate_service(request_id):
@@ -754,3 +843,13 @@ def rate_service(request_id):
     db.session.commit()
     flash('Thank you for your rating!')
     return redirect(url_for('customer_dashboard'))
+
+
+@app.route('/customer/review/<int:review_id>/report', methods=['POST'])
+@auth_required
+def report_review(review_id):
+    review = Review.query.get_or_404(review_id)
+    review.reported = True
+    db.session.commit()
+    flash('Review reported successfully')
+    return redirect(url_for('professional_dashboard'))

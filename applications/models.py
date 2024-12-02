@@ -86,6 +86,15 @@ class Review(db.Model):
     comment = db.Column(db.Text)
     reported = db.Column(db.Boolean, default=False)
 
+class Report(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    request_id = db.Column(db.Integer, db.ForeignKey('serviceRequest.id'))
+    reported_by_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    issue_type = db.Column(db.String(50))
+    description = db.Column(db.Text)
+    timestamp = db.Column(db.DateTime, default=datetime.utcnow)
+    status = db.Column(db.String(20), default='Open')
+
 with app.app_context():
     db.create_all()
 
