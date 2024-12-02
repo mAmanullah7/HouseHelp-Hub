@@ -1,0 +1,236 @@
+{% extends 'layout.html' %}
+
+{% block title %}Admin Search{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <h1 class="display-4 mb-4">Search</h1>
+
+    <!-- Search Filters -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <form method="GET" action="{{ url_for('admin_search') }}" id="searchForm">
+                <div class="row g-3">
+                    <!-- Search Type -->
+                    <div class="col-md-3">
+                        <label class="form-label">Search Category</label>
+                        <select class="form-select" name="search_type" id="searchType">
+                            <option value="all">All</option>
+                            <option value="services">Services</option>
+                            <option value="professionals">Professionals</option>
+                            <option value="customers">Customers</option>
+                            <option value="requests">Service Requests</option>
+                        </select>
+                    </div>
+
+                    <!-- Keyword Search -->
+                    <div class="col-md-3">
+                        <label class="form-label">Keyword</label>
+                        <input type="text" class="form-control" name="keyword" placeholder="Search...">
+                    </div>
+
+                    <!-- Date Range -->
+                    <div class="col-md-3">
+                        <label class="form-label">From Date</label>
+                        <input type="date" class="form-control" name="date_from">
+                    </div>
+
+                    <div class="col-md-3">
+                        <label class="form-label">To Date</label>
+                        <input type="date" class="form-control" name="date_to">
+                    </div>
+
+                    <!-- Additional Filters -->
+                    <div class="col-md-3">
+                        <label class="form-label">Status</label>
+                        <select class="form-select" name="status">
+                            <option value="">All</option>
+                            <option value="active">Active</option>
+                            <option value="pending">Pending</option>
+                            <option value="completed">Completed</option>
+                            <option value="blocked">Blocked</option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-3">
+                        <label class="form-label">Rating</label>
+                        <select class="form-select" name="rating">
+                            <option value="">All</option>
+                            <option value="4">4+ Stars</option>
+                            <option value="3">3+ Stars</option>
+                            <option value="2">2+ Stars</option>
+                            <option value="1">1+ Stars</option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-3">
+                        <label class="form-label">Sort By</label>
+                        <select class="form-select" name="sort_by">
+                            <option value="date_desc">Date (Newest)</option>
+                            <option value="date_asc">Date (Oldest)</option>
+                            <option value="name_asc">Name (A-Z)</option>
+                            <option value="name_desc">Name (Z-A)</option>
+                            <option value="rating_desc">Rating (High-Low)</option>
+                            <option value="rating_asc">Rating (Low-High)</option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-3 d-flex align-items-end">
+                        <button type="submit" class="btn btn-primary w-100">
+                            <i class="fas fa-search me-2"></i>Search
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Search Results -->
+    <div class="card">
+        <div class="card-header bg-light">
+            <h2 class="h4 mb-0">Search Results</h2>
+        </div>
+        <div class="card-body">
+            <!-- Dynamic Results Table -->
+            <div class="table-responsive" id="resultsTable">
+                {% if results %}
+                <table class="table table-hover">
+                    <thead class="table-light">
+                        <tr>
+                            <!-- Dynamic Headers based on search type -->
+                            {% if search_type == 'services' or search_type == 'all' %}
+                            <th>Service Name</th>
+                            <th>Price</th>
+                            <th>Description</th>
+                            <th>Actions</th>
+                            {% endif %}
+
+                            {% if search_type == 'professionals' or search_type == 'all' %}
+                            <th>Name</th>
+                            <th>Service Type</th>
+                            <th>Rating</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                            {% endif %}
+
+                            {% if search_type == 'customers' or search_type == 'all' %}
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                            {% endif %}
+
+                            {% if search_type == 'requests' or search_type == 'all' %}
+                            <th>Service</th>
+                            <th>Customer</th>
+                            <th>Professional</th>
+                            <th>Status</th>
+                            <th>Date</th>
+                            <th>Actions</th>
+                            {% endif %}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for result in results %}
+                        <tr>
+                            <!-- Dynamic row data based on result type -->
+                            {% if result.__tablename__ == 'services' %}
+                            <td>{{ result.service_name }}</td>
+                            <td>₹{{ result.price }}</td>
+                            <td>{{ result.description }}</td>
+                            <td>
+                                <div class="btn-group">
+                                    <a href="{{ url_for('show_service', id=result.id) }}" class="btn btn-info btn-sm">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                    <a href="{{ url_for('edit_service', id=result.id) }}" class="btn btn-warning btn-sm">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                </div>
+                            </td>
+                            {% endif %}
+
+                            {% if result.__tablename__ == 'user' and result.is_provider %}
+                            <td>{{ result.name }}</td>
+                            <td>{{ result.service_type }}</td>
+                            <td>
+                                <span class="text-warning">
+                                    <i class="fas fa-star"></i> {{ "%.1f"|format(result.avg_rating) }}
+                                </span>
+                            </td>
+                            <td>
+                                <span class="badge {{ 'bg-success' if result.is_verified else 'bg-warning' }}">
+                                    {{ 'Verified' if result.is_verified else 'Pending' }}
+                                </span>
+                            </td>
+                            <td>
+                                <div class="btn-group">
+                                    <a href="{{ url_for('toggle_block', user_id=result.id) }}" 
+                                       class="btn {{ 'btn-danger' if not result.is_blocked else 'btn-success' }} btn-sm">
+                                        {{ 'Block' if not result.is_blocked else 'Unblock' }}
+                                    </a>
+                                </div>
+                            </td>
+                            {% endif %}
+
+                            {% if result.__tablename__ == 'user' and result.is_client %}
+                            <td>{{ result.name }}</td>
+                            <td>{{ result.username }}</td>
+                            <td>
+                                <span class="badge {{ 'bg-danger' if result.is_blocked else 'bg-success' }}">
+                                    {{ 'Blocked' if result.is_blocked else 'Active' }}
+                                </span>
+                            </td>
+                            <td>
+                                <a href="{{ url_for('toggle_block', user_id=result.id) }}" 
+                                   class="btn {{ 'btn-warning' if not result.is_blocked else 'btn-success' }} btn-sm">
+                                    {{ 'Block' if not result.is_blocked else 'Unblock' }}
+                                </a>
+                            </td>
+                            {% endif %}
+
+                            {% if result.__tablename__ == 'serviceRequest' %}
+                            <td>{{ result.service.service_name }}</td>
+                            <td>{{ result.client.name }}</td>
+                            <td>{{ result.provider.name if result.provider else 'Unassigned' }}</td>
+                            <td>
+                                <span class="badge {{ 'bg-success' if result.status == 'Completed' 
+                                                    else 'bg-warning' if result.status == 'Pending'
+                                                    else 'bg-primary' }}">
+                                    {{ result.status }}
+                                </span>
+                            </td>
+                            <td>{{ result.date_created.strftime('%Y-%m-%d') }}</td>
+                            <td>
+                                <a href="{{ url_for('show_request', id=result.id) }}" class="btn btn-info btn-sm">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                            </td>
+                            {% endif %}
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                {% else %}
+                <p class="text-center text-muted my-5">No results found</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+{% block script %}
+<!-- <script>
+// Dynamic form handling
+document.getElementById('searchType').addEventListener('change', function() {
+    const searchType = this.value;
+    const form = document.getElementById('searchForm');
+    
+    // Update form fields based on search type
+    // You can show/hide specific fields based on the selected search type
+});
+
+</script> -->
+{% endblock %}
+
+{% endblock %}

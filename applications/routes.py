@@ -6,6 +6,7 @@ from werkzeug.utils import secure_filename
 from functools import wraps
 from datetime import datetime
 import os
+from sqlalchemy import or_, desc, asc
 
 
 
@@ -716,8 +717,8 @@ def professional_dashboard():
         status = 'Completed'
     ).order_by(ServiceRequest.date_created.desc()).all()
     
-    print(f"Found {len(pending_requests)} pending requests")
-    print(f"Found {len(completed_requests)} completed requests")
+    # print(f"Found {len(pending_requests)} pending requests")
+    # print(f"Found {len(completed_requests)} completed requests")
     
     return render_template('Professionals/dashboard.html',
                          user=user,
@@ -851,3 +852,163 @@ def report_review(review_id):
     db.session.commit()
     flash('Review reported successfully')
     return redirect(url_for('professional_dashboard'))
+
+
+
+# ------------------   Searching   -------------------
+
+@app.route('/admin/search')
+@admin_required
+def admin_search():
+    search_type = request.args.get('search_type', 'all')
+    keyword = request.args.get('keyword', '')
+    date_from = request.args.get('date_from')
+    date_to = request.args.get('date_to')
+    status = request.args.get('status')
+    rating = request.args.get('rating')
+    sort_by = request.args.get('sort_by', 'name_asc')
+
+    # Services search
+    if search_type == 'services':
+        query = Service.query.filter(
+            or_(
+                Service.service_name.ilike(f'%{keyword}%'),
+                Service.description.ilike(f'%{keyword}%')
+            )
+        )
+        # Sort services
+        if sort_by == 'name_asc':
+            query = query.order_by(Service.service_name.asc())
+        elif sort_by == 'name_desc':
+            query = query.order_by(Service.service_name.desc())
+        elif sort_by == 'price_asc':
+            query = query.order_by(Service.price.asc())
+        elif sort_by == 'price_desc':
+            query = query.order_by(Service.price.desc())
+
+    # Professionals search
+    elif search_type == 'professionals':
+        query = User.query.filter_by(is_provider=True).filter(
+            or_(
+                User.name.ilike(f'%{keyword}%'),
+                User.username.ilike(f'%{keyword}%'),
+                User.service_type.ilike(f'%{keyword}%')
+            )
+        )
+        if rating:
+            query = query.filter(User.avg_rating >= float(rating))
+        
+        if sort_by == 'name_asc':
+            query = query.order_by(User.name.asc())
+        elif sort_by == 'name_desc':
+            query = query.order_by(User.name.desc())
+        elif sort_by in ['rating_desc', 'rating_asc']:
+            direction = desc if sort_by == 'rating_desc' else asc
+            query = query.order_by(direction(User.avg_rating))
+
+    # Service requests search
+    elif search_type == 'requests':
+        query = ServiceRequest.query
+        if keyword:
+            query = query.join(Service).filter(
+                or_(
+                    Service.service_name.ilike(f'%{keyword}%'),
+                    ServiceRequest.description.ilike(f'%{keyword}%')
+                )
+            )
+        
+        if date_from:
+            date_from = datetime.strptime(date_from, '%Y-%m-%d')
+            query = query.filter(ServiceRequest.date_created >= date_from)
+        if date_to:
+            date_to = datetime.strptime(date_to, '%Y-%m-%d')
+            query = query.filter(ServiceRequest.date_created <= date_to)
+        
+        if status:
+            query = query.filter(ServiceRequest.status == status)
+        
+        if sort_by in ['date_desc', 'date_asc']:
+            direction = desc if sort_by == 'date_desc' else asc
+            query = query.order_by(direction(ServiceRequest.date_created))
+
+    # Customers search
+    else:
+        query = User.query.filter_by(is_client=True).filter(
+            or_(
+                User.name.ilike(f'%{keyword}%'),
+                User.username.ilike(f'%{keyword}%')
+            )
+        )
+        if sort_by in ['name_desc', 'name_asc']:
+            direction = desc if sort_by == 'name_desc' else asc
+            query = query.order_by(direction(User.name))
+
+    results = query.all()
+    return render_template('admin_search.html', 
+                         results=results,
+                         search_type=search_type,
+                         keyword=keyword,
+                         date_from=date_from,
+                         date_to=date_to,
+                         status=status,
+                         rating=rating,
+                         sort_by=sort_by)
+
+
+
+
+@app.route('/professional/search')
+@auth_required
+def professional_search():
+    user_id = session.get('User_id')
+    if not user_id:
+        return redirect(url_for('login'))
+    
+    user = User.query.get(user_id)
+    if not user or not user.is_provider:
+        abort(403)
+
+    search_type = request.args.get('search_type', '')
+    search_query = request.args.get('search_query', '')
+    category = request.args.get('category', 'pending')
+    
+    base_query = ServiceRequest.query\
+        .join(Service, ServiceRequest.service_id == Service.id)\
+        .join(User, ServiceRequest.client_id == User.id)
+
+    if category == 'pending':
+        base_query = base_query.filter(
+            ServiceRequest.provider_id.is_(None),
+            ServiceRequest.status == 'pending'
+        )
+    elif category == 'active':
+        base_query = base_query.filter(
+            ServiceRequest.provider_id == user_id,
+            ServiceRequest.status.in_(['accepted', 'in_progress'])
+        )
+    else:  # history
+        base_query = base_query.filter(
+            ServiceRequest.provider_id == user_id,
+            ServiceRequest.status == 'completed'
+        )
+
+    if search_type and search_query:
+        if search_type == 'date':
+            try:
+                search_date = datetime.strptime(search_query, '%Y-%m-%d')
+                base_query = base_query.filter(ServiceRequest.date_created >= search_date)
+            except ValueError:
+                flash('Invalid date format', 'error')
+        elif search_type == 'location':
+            base_query = base_query.filter(User.address.ilike(f'%{search_query}%'))
+        elif search_type == 'pincode':
+            base_query = base_query.filter(User.pincode == search_query)
+
+    requests = base_query.order_by(ServiceRequest.date_created.desc()).all()
+    
+    return render_template('professionals/professional_search.html',
+                         requests=requests,
+                         user=user,
+                         search_type=search_type,
+                         search_query=search_query,
+                         category=category)

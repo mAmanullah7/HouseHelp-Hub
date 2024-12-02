@@ -30,6 +30,7 @@
                     <tr>
                         <th>Customer</th>
                         <th>Location</th>
+                        <th>Pincode</th>
                         <th>Description</th>
                         <th>Requested On</th>
                         <th>Actions</th>
@@ -43,7 +44,8 @@
                                  class="rounded-circle me-2" style="width: 32px; height: 32px;">
                             {{ request.client.name }}
                         </td>
-                        <td>{{ request.client.address }} ({{ request.client.pincode }})</td>
+                        <td>{{ request.client.address }}</td>
+                        <td>{{ request.client.pincode }}</td>
                         <td>{{ request.description }}</td>
                         <td>{{ request.date_created.strftime('%Y-%m-%d %H:%M') }}</td>
                         <td>
@@ -69,6 +71,8 @@
                 <thead>
                     <tr>
                         <th>Customer</th>
+                        <th>Location</th>
+                        <th>Pincode</th>
                         <th>Service</th>
                         <th>Status</th>
                         <th>Started</th>
@@ -79,6 +83,8 @@
                     {% for request in active_requests %}
                     <tr>
                         <td>{{ request.client.name }}</td>
+                        <td>{{ request.client.address }}</td>
+                        <td>{{ request.client.pincode }}</td>
                         <td>{{ request.service.service_name }}</td>
                         <td>
                             <span class="badge bg-info">In Progress</span>
@@ -141,7 +147,7 @@
                                     <div class="modal-body">
                                         <div class="mb-3">
                                             <label class="form-label">Issue Type</label>
-                                            <select class="form-select" name="issue_type" required>
+                                            <select class="form-select" name="issue_type" required></select>
                                                 <option value="inappropriate">Inappropriate Behavior</option>
                                                 <option value="unsafe">Unsafe Conditions</option>
                                                 <option value="fraud">Fraudulent Activity</option>
@@ -153,7 +159,7 @@
                                             <textarea class="form-control" name="description" rows="3" required></textarea>
                                         </div>
                                     </div>
-                                    <div class="modal-footer">
+                                    <div class="modal-footer"></div>
                                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
                                         <button type="submit" class="btn btn-danger">Submit Report</button>
                                     </div>
@@ -175,6 +181,8 @@
                 <thead>
                     <tr>
                         <th>Customer</th>
+                        <th>Location</th>
+                        <th>Pincode</th>
                         <th>Service</th>
                         <th>Completed On</th>
                         <th>Duration</th>
@@ -186,6 +194,8 @@
                     {% for request in completed_requests %}
                     <tr>
                         <td>{{ request.client.name }}</td>
+                        <td>{{ request.client.address }}</td>
+                        <td>{{ request.client.pincode }}</td>
                         <td>{{ request.service.service_name }}</td>
                         <td>{{ request.date_closed.strftime('%Y-%m-%d %H:%M') }}</td>
                         <td>
