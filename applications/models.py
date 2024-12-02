@@ -24,11 +24,21 @@ class User(db.Model):
     is_provider = db.Column(db.Boolean, default=False)  # Indicates if the user is a provider
     is_verified = db.Column(db.Boolean, default=False)  # Indicates if the provider is verified
     service_id = db.Column(db.Integer, db.ForeignKey('services.id'), nullable=True)  # Foreign key to the services table
-
+    is_blocked = db.Column(db.Boolean, default=False)
     # Relationships
     service = db.relationship('Service', back_populates="providers")
     client_requests = db.relationship('ServiceRequest', back_populates='client', foreign_keys="ServiceRequest.client_id")
     provider_requests = db.relationship('ServiceRequest', back_populates='provider', foreign_keys="ServiceRequest.provider_id")
+
+    def update_rating(self, new_rating):
+        total_rating = (self.avg_rating * self.rating_count) + new_rating
+        self.rating_count += 1
+        self.avg_rating = total_rating / self.rating_count
+        
+    def toggle_block(self):
+        self.is_blocked = not self.is_blocked
+        # db.session.commit()
+
 
 
 class Service(db.Model):
@@ -60,6 +70,21 @@ class ServiceRequest(db.Model):
     service = db.relationship('Service', back_populates="requests")
     client = db.relationship('User', back_populates="client_requests", foreign_keys=[client_id])
     provider = db.relationship('User', back_populates="provider_requests", foreign_keys=[provider_id])
+
+
+class UserActivity(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    activity_type = db.Column(db.String(50))
+    description = db.Column(db.Text)
+    timestamp = db.Column(db.DateTime, default=datetime.utcnow)
+    
+class Review(db.Model):
+    id = db.Column(db.Integer, primary_key=True) 
+    request_id = db.Column(db.Integer, db.ForeignKey('serviceRequest.id'))
+    rating = db.Column(db.Integer)
+    comment = db.Column(db.Text)
+    reported = db.Column(db.Boolean, default=False)
 
 with app.app_context():
     db.create_all()

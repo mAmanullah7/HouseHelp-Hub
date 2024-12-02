@@ -15,7 +15,7 @@ def inject_user():
     return dict(user=User)
 
 
-
+# @auth_required
 def auth_required(func):
     @wraps(func)
     def inner(*args, **kwargs):
@@ -26,6 +26,8 @@ def auth_required(func):
             return redirect(url_for('login'))
     return inner
 
+
+# @admin_required
 def admin_required(func):
     @wraps(func)
     def inner(*args, **kwargs):
@@ -95,6 +97,10 @@ def login_post():
     # Check if user is a professional and not verified
     if user.is_provider and not user.is_verified:
         flash('Your account is pending verification by admin')
+        return redirect(url_for('login'))
+    
+    if user.is_blocked:
+        flash('Your account has been blocked. Please contact admin.')
         return redirect(url_for('login'))
     
     session['User_id']=user.id
@@ -337,10 +343,11 @@ def logout():
 def admin():
     service=Service.query.order_by(Service.id).all()
     providers = User.query.filter_by(is_provider=True).all()
+    customers = User.query.filter_by(is_client=True).all()
     requests = ServiceRequest.query.order_by(ServiceRequest.date_created.desc()).all()
     ord_service=list(enumerate(service,1))
 
-    return render_template('admin.html', services=ord_service,providers=providers, requests=requests)
+    return render_template('admin.html', services=ord_service,providers=providers, customers=customers, requests=requests)
 
 
 @app.route('/services/add')
@@ -471,6 +478,15 @@ def delete_professional(id):
         
     return render_template('Professionals/delete.html', provider=provider)
 
+@app.route('/admin/toggle-block/<int:user_id>')
+@admin_required
+def toggle_block(user_id):
+    user = User.query.get_or_404(user_id)
+    user.is_blocked = not user.is_blocked
+    db.session.commit()
+    flash(f"User {user.name} {'blocked' if user.is_blocked else 'unblocked'} successfully")
+    return redirect(url_for('admin'))
+
 
 @app.route('/professionals/<int:id>/delete', methods=['POST'])
 @admin_required
@@ -488,6 +504,28 @@ def delete_professional_post(id):
     return redirect(url_for('admin'))
 
 
+
+# -----------------------Customer Management Routes------------------------
+
+@app.route('/admin/customers')
+@admin_required
+def view_customers():
+    customers = User.query.filter_by(is_client=True).all()
+    return render_template('admin/customers.html', customers=customers)
+
+@app.route('/admin/professionals') 
+@admin_required
+def view_professionals():
+    professionals = User.query.filter_by(is_provider=True).all()
+    return render_template('admin/professionals.html', professionals=professionals)
+
+@app.route('/admin/users/<int:id>/toggle_block')
+@admin_required
+def toggle_user_block(id):
+    user = User.query.get_or_404(id)
+    user.toggle_block()
+    flash(f"User {user.name} has been {'blocked' if user.is_blocked else 'unblocked'}")
+    return redirect(request.referrer)
 
 #  ----------------------------  Service Request Management Routes   ----------------------------
 
@@ -609,15 +647,16 @@ def handle_request(id):
         flash('Unauthorized access')
         return redirect(url_for('index'))
     
-    request = ServiceRequest.query.get_or_404(id)
+    service_request = ServiceRequest.query.get_or_404(id)
     action = request.form.get('action')
+
     
     if action == 'accept':
-        request.provider_id = user.id
-        request.status = 'Assigned'
+        service_request.provider_id = user.id
+        service_request.status = 'Assigned'
         flash('Service request accepted successfully')
     elif action == 'reject':
-        request.status = 'Rejected'
+        service_request.status = 'Rejected'
         flash('Service request rejected')
     
     db.session.commit()

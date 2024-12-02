@@ -13,7 +13,7 @@
             <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                 {% if user.is_admin %}
                 <li class="nav-item">
-                    <a class="nav-link active" aria-current="page" href="{{url_for('admin')}}">Dashboard</a>
+                    <a class="nav-link active" aria-current="page" href="{{url_for('admin')}}">Home</a>
                 </li>
                 <li class="nav-item">
                     <form class="d-flex" role="search">
@@ -26,7 +26,7 @@
                 </li>
                 {% elif user.is_provider %}
                 <li class="nav-item">
-                    <a class="nav-link active" aria-current="page" href="{{url_for('professional_dashboard')}}">Dashboard</a>
+                    <a class="nav-link active" aria-current="page" href="{{url_for('professional_dashboard')}}">Home</a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" href="/">My Services</a>
@@ -36,7 +36,7 @@
                 </li>
                 {% else %}
                 <li class="nav-item">
-                    <a class="nav-link active" aria-current="page" href="{{url_for('customer_dashboard')}}">Dashboard</a>
+                    <a class="nav-link active" aria-current="page" href="{{url_for('customer_dashboard')}}">Home</a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" href="/">Book Service</a>
