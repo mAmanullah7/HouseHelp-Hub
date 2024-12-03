@@ -1136,4 +1136,10 @@ def professional_summary():
     #  .limit(6).all()
     
     return render_template('Professionals/summary.html')
+
+@app.route('/customer/summary')
+@auth_required
+def customer_summary():
+    
+    return render_template('customer/summary.html')
                          
