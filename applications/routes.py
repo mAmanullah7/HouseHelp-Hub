@@ -328,7 +328,7 @@ def profile_post():
 @auth_required
 def logout():
     session.pop('User_id')
-    return redirect(url_for('login'))
+    return redirect(url_for('index'))
     
 
     
@@ -1061,3 +1061,79 @@ def customer_search():
                          price_max=price_max,
                          rating=rating,
                          sort_by=sort_by)
+
+
+
+# ----------------------- SUmmary ----------------------------
+
+# routes.py
+@app.route('/admin/summary')
+@admin_required
+def admin_summary():
+    # Get statistics
+    total_customers = User.query.filter_by(is_client=True).count()
+    total_providers = User.query.filter_by(is_provider=True).count()
+    total_services = Service.query.count()
+    
+    # Get service requests statistics
+    total_requests = ServiceRequest.query.count()
+    pending_requests = ServiceRequest.query.filter_by(status='Pending').count()
+    active_requests = ServiceRequest.query.filter_by(status='In Progress').count()
+    completed_requests = ServiceRequest.query.filter_by(status='Completed').count()
+    
+    # Get top rated professionals
+    top_professionals = User.query.filter_by(is_provider=True)\
+        .order_by(User.avg_rating.desc())\
+        .limit(5).all()
+    
+    # Get most requested services
+    service_stats = db.session.query(
+        Service.service_name,
+        db.func.count(ServiceRequest.id).label('request_count')
+    ).join(ServiceRequest)\
+     .group_by(Service.service_name)\
+     .order_by(db.desc('request_count'))\
+     .limit(5).all()
+    
+    return render_template('admin_summary.html',
+                         total_customers=total_customers,
+                         total_providers=total_providers,
+                         total_services=total_services,
+                         total_requests=total_requests,
+                         pending_requests=pending_requests,
+                         active_requests=active_requests,
+                         completed_requests=completed_requests,
+                         top_professionals=top_professionals,
+                         service_stats=service_stats)
+
+
+# routes.py
+@app.route('/professional/summary')
+@auth_required
+def professional_summary():
+    # Get personal statistics
+    # current_user = User.query.get(session['User_id'])
+    # total_requests = ServiceRequest.query.filter_by(provider_id=current_user.id).count()
+    # completed_requests = ServiceRequest.query.filter_by(
+    #     provider_id=current_user.id, 
+    #     status='Completed'
+    # ).count()
+    # active_requests = ServiceRequest.query.filter_by(
+    #     provider_id=current_user.id, 
+    #     status='In Progress'
+    # ).count()
+    
+    # # Calculate completion rate
+    # completion_rate = (completed_requests / total_requests * 100) if total_requests > 0 else 0
+    
+    # # Get monthly request counts
+    # monthly_stats = db.session.query(
+    #     db.func.strftime('%Y-%m', ServiceRequest.date_created).label('month'),
+    #     db.func.count(ServiceRequest.id).label('count')
+    # ).filter_by(provider_id=current_user.id)\
+    #  .group_by('month')\
+    #  .order_by('month')\
+    #  .limit(6).all()
+    
+    return render_template('Professionals/summary.html')
+                         
