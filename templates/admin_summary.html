@@ -2,17 +2,176 @@
 
 {% block title %}Admin Summary{% endblock %}
 
+{% block style %}
+<style>
+.stat-card {
+    transition: transform 0.3s;
+}
+.stat-card:hover {
+    transform: translateY(-5px);
+}
+.chart-container {
+    position: relative;
+    margin: auto;
+    height: 300px;
+}
+</style>
+{% endblock %}
+
 {% block content %}
-<div class="container py-5">
-    <div class="card shadow-sm">
-        <div class="card-body text-center py-5">
-            <i class="fas fa-chart-line fa-4x text-muted mb-4"></i>
-            <h2 class="display-4">Summary Coming Soon</h2>
-            <p class="lead text-muted">We're working on adding detailed performance metrics and analytics for Admin.</p>
-            <a href="{{ url_for('professional_dashboard') }}" class="btn btn-primary mt-3">
-                <i class="fas fa-arrow-left me-2"></i>Back to Dashboard
-            </a>
+<div class="container py-4">
+    <h1 class="display-4 mb-4">Dashboard Summary</h1>
+
+    <!-- Statistics Cards -->
+    <div class="row g-4 mb-5">
+        <div class="col-md-3">
+            <div class="card stat-card bg-primary text-white">
+                <div class="card-body">
+                    <h5 class="card-title">Total Customers</h5>
+                    <h2 class="card-text">{{ total_customers }}</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card stat-card bg-success text-white">
+                <div class="card-body">
+                    <h5 class="card-title">Total Professionals</h5>
+                    <h2 class="card-text">{{ total_providers }}</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card stat-card bg-info text-white">
+                <div class="card-body">
+                    <h5 class="card-title">Total Services</h5>
+                    <h2 class="card-text">{{ total_services }}</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card stat-card bg-warning text-white">
+                <div class="card-body">
+                    <h5 class="card-title">Total Requests</h5>
+                    <h2 class="card-text">{{ total_requests }}</h2>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Charts Row -->
+    <div class="row g-4 mb-5">
+        <!-- Service Requests Status -->
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Service Requests Status</h5>
+                    <div class="chart-container">
+                        <canvas id="requestsChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Top Requested Services -->
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Most Requested Services</h5>
+                    <div class="chart-container">
+                        <canvas id="servicesChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Top Professionals -->
+    <div class="card mb-5">
+        <div class="card-body">
+            <h5 class="card-title">Top Rated Professionals</h5>
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Professional</th>
+                            <th>Service Type</th>
+                            <th>Rating</th>
+                            <th>Reviews</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for prof in top_professionals %}
+                        <tr>
+                            <td>
+                                <img src="https://api.dicebear.com/9.x/lorelei/svg?seed={{prof.username}}" 
+                                     class="rounded-circle me-2" style="width: 32px; height: 32px;">
+                                {{ prof.name }}
+                            </td>
+                            <td>{{ prof.service_type }}</td>
+                            <td>
+                                <span class="text-warning">
+                                    {% for i in range(prof.avg_rating|round|int) %}⭐{% endfor %}
+                                </span>
+                                ({{ "%.1f"|format(prof.avg_rating) }})
+                            </td>
+                            <td>{{ prof.rating_count }}</td>
+                            <td>
+                                <span class="badge {% if prof.is_verified %}bg-success{% else %}bg-warning{% endif %}">
+                                    {{ 'Verified' if prof.is_verified else 'Pending' }}
+                                </span>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 </div>
+{% endblock %}
+
+{% block script %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+// Service Requests Status Chart
+const requestsCtx = document.getElementById('requestsChart').getContext('2d');
+new Chart(requestsCtx, {
+    type: 'doughnut',
+    data: {
+        labels: ['Pending', 'Active', 'Completed'],
+        datasets: [{
+            data: [{{ pending_requests }}, {{ active_requests }}, {{ completed_requests }}],
+            backgroundColor: ['#ffc107', '#0dcaf0', '#198754']
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false
+    }
+});
+
+// Most Requested Services Chart
+const servicesCtx = document.getElementById('servicesChart').getContext('2d');
+new Chart(servicesCtx, {
+    type: 'bar',
+    data: {
+        labels: [{% for service in service_stats %}'{{ service.service_name }}',{% endfor %}],
+        datasets: [{
+            label: 'Number of Requests',
+            data: [{% for service in service_stats %}{{ service.request_count }},{% endfor %}],
+            backgroundColor: '#0d6efd'
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+            y: {
+                beginAtZero: true
+            }
+        }
+    }
+});
+</script>
 {% endblock %}

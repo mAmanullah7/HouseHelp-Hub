@@ -1,54 +1,122 @@
 {% extends 'layout.html' %}
 
-{% block title %}
-Profile page
-{% endblock %}
+{% block title %}Profile page{% endblock %}
 
 {% block content %}
- <h1 class="display-1"> 
-    Hello
-    <span class="text-muted">@{{user.name}}</span>
- </h1>
+<div class="container py-5">
+    <div class="row">
+        <div class="col-lg-8 mx-auto">
+            <div class="card shadow-lg">
+                <div class="card-body text-center py-5">
+                    <!-- Profile Header -->
+                    <div class="profile-header mb-4">
+                        <div class="profile-pic mb-4">
+                            <img src="https://api.dicebear.com/9.x/lorelei/svg?seed={{user.username}}" 
+                                 class="rounded-circle border shadow-sm" 
+                                 width="150" 
+                                 alt="profile picture">
+                        </div>
+                        <h1 class="display-4 fw-bold"> 
+                            Hello
+                            <span class="text-primary">@{{user.name}}</span>
+                        </h1>
+                    </div>
 
-     <div class="profile-pic">
-        <img src="https://api.dicebear.com/9.x/lorelei/svg?seed={{user.username}}"  width="100" alt="profile picture">
-     </div>
+                    <!-- Profile Update Form -->
+                    <div class="card-text">
+                        <form action="" method="post" class="text-start">
+                            <div class="row g-4">
+                                <div class="col-md-6">
+                                    <div class="form-floating mb-3">
+                                        <input type="email" 
+                                               name="email" 
+                                               id="email" 
+                                               value="{{user.username}}"
+                                               class="form-control" 
+                                               required>
+                                        <label for="email">
+                                            <i class="fas fa-user me-2"></i>Username
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-floating mb-3">
+                                        <input type="text" 
+                                               name="name" 
+                                               id="name" 
+                                               value="{{user.name}}" 
+                                               class="form-control">
+                                        <label for="name">
+                                            <i class="fas fa-id-card me-2"></i>Full Name
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
 
-  <a href="{{url_for('logout')}}" class="btn btn-danger">Logout</a>
+                            <div class="row g-4">
+                                <div class="col-md-6">
+                                    <div class="form-floating mb-3">
+                                        <input type="password" 
+                                               name="currentpassword" 
+                                               id="currentpassword" 
+                                               class="form-control" 
+                                               required>
+                                        <label for="currentpassword">
+                                            <i class="fas fa-lock me-2"></i>Current Password
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-floating mb-3">
+                                        <input type="password" 
+                                               name="newpassword" 
+                                               id="newpassword" 
+                                               class="form-control" 
+                                               required>
+                                        <label for="newpassword">
+                                            <i class="fas fa-key me-2"></i>New Password
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
 
-   <!-- form to chnage the password and username-->
-    <form action="" method="post">
-        <div class="form-group">
-            <label for="email" class="for-label">Username</label>
-            <input type="email" 
-            name="email" 
-            id="email" 
-            value="{{user.username}}"
-            class="form-control" 
-            required>
+                            <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4">
+                                <a href="{{url_for('logout')}}" class="btn btn-danger me-md-2">
+                                    <i class="fas fa-sign-out-alt me-2"></i>Logout
+                                </a>
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-save me-2"></i>Update Profile
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
         </div>
-        <div class="form-group">
-            <label for="currentpassword" class="for-label">Current Password</label>
-            <input type="password" name="currentpassword" id="currentpassword" class="form-control" required>
-        </div>
-        <div class="form-group">
-            <label for="newpassword" class="form-label">New Password</label>
-            <input type="password" name="newpassword" id="newpassword" class="form-control" required>
-        </div>
-        <div class="form-group">
-            <label for="name" class="form-label">Full Name</label>
-            <input type="text" name="name" id="name" value="{{user.name}}" class="form-control">
-        </div>
+    </div>
+</div>
 
-        <div class="form-group">
-            <button type="submit" class="btn btn-primary">Update</button>
-        </div>
-    </form>
-    
+<!-- Add this in the head section of layout.html -->
+<style>
+    .profile-pic img {
+        transition: transform 0.3s ease;
+    }
+    .profile-pic img:hover {
+        transform: scale(1.1);
+    }
+    .card {
+        border-radius: 15px;
+        background: linear-gradient(145deg, #ffffff, #f6f9fc);
+    }
+    .form-floating > label {
+        color: #6c757d;
+    }
+    .form-control:focus {
+        border-color: #0d6efd;
+        box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+    }
+</style>
 
-
-
+<!-- Add Font Awesome in the head section of layout.html -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 {% endblock %}
-
-
-

@@ -1,84 +1,156 @@
 {% extends 'layout.html' %}
+
 {% block style %}
 <style>
-        
     body {
-        font-family: Arial, sans-serif;
-        background-color: #f7f7f7;
-        margin: 0;
-        padding: 0;
+        background-image: url('https://images.unsplash.com/photo-1556761175-5973dc0f32e7?auto=format&fit=crop&q=80');
+        background-size: cover;
+        background-position: center;
+        background-attachment: fixed;
+        min-height: 100vh;
     }
-    .container {
-        width: 100%;
+
+    body::before {
+        content: '';
+        position: fixed;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        background: linear-gradient(135deg, rgba(0,0,0,0.6) 0%, rgba(0,0,0,0.3) 100%);
+        z-index: -1;
+    }
+
+    .login-container {
         max-width: 400px;
-        margin: 100px auto;
-        padding: 20px;
-        background-color: #fff;
-        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        margin: 80px auto;
+        padding: 2rem;
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
+        border-radius: 15px;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
     }
-    h2 {
+
+    .login-header {
         text-align: center;
-        margin-bottom: 20px;
+        margin-bottom: 2rem;
     }
-    label {
-        display: block;
-        margin-bottom: 8px;
+
+    .login-header h1 {
+        color: #2c3e50;
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
     }
-    input[type="text"], input[type="password"] {
+
+    .form-floating {
+        margin-bottom: 1.5rem;
+    }
+
+    .form-floating > input {
+        height: 3.5rem;
+        padding: 1rem 0.75rem;
+    }
+
+    .form-floating > label {
+        padding: 1rem 0.75rem;
+    }
+
+    .btn-login {
         width: 100%;
-        padding: 10px;
-        margin-bottom: 20px;
-        border: 1px solid #ccc;
-        border-radius: 5px;
-    }
-    .button {
-        width: 100%;
-        padding: 10px;
-        background-color: #4CAF50;
-        color: white;
+        padding: 0.8rem;
+        font-size: 1.1rem;
+        font-weight: 600;
+        background: #4e73df;
         border: none;
-        border-radius: 5px;
-        cursor: pointer;
+        border-radius: 10px;
+        transition: all 0.3s ease;
     }
-    .button:hover {
-        background-color: #45a049;
+
+    .btn-login:hover {
+        background: #2e59d9;
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(46, 89, 217, 0.2);
     }
-    .link {
+
+    .registration-options {
+        text-align: center;
+        margin-top: 2rem;
+        padding: 1rem;
+        background: rgba(0,0,0,0.05);
+        border-radius: 10px;
+    }
+
+    .registration-options p {
+        color: #2c3e50;
+        margin-bottom: 1rem;
+    }
+
+    .registration-links {
         display: flex;
-        justify-content: space-between;
-        margin-top: 20px;
+        gap: 1rem;
+        justify-content: center;
     }
-    .link a {
-        color: orange;
+
+    .reg-link {
+        padding: 0.5rem 1.5rem;
+        border-radius: 25px;
         text-decoration: none;
+        transition: all 0.3s ease;
+        font-weight: 500;
+    }
+
+    .customer-link {
+        background: #2ecc71;
+        color: white;
+    }
+
+    .professional-link {
+        background: #e74c3c;
+        color: white;
+    }
+
+    .reg-link:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        color: white;
     }
 </style>
 {% endblock %}
 
-{% block title %}
-Login Page
-{% endblock %}
-
 {% block content %}
-<h1>Login</h1>
-<form action="/login" method="post">
-    <div class="form-group">
-        <label for="email" class="form-label">Email ID:</label>
-        <input type="text" id="email" name="email" required class="form-control">
+<div class="login-container">
+    <div class="login-header">
+        <h1>Welcome Back</h1>
+        <p class="text-muted">Please login to continue</p>
     </div>
-    <div class="form-group">
-        <label for="password" class="form-label">Password:</label>
-        <input type="password" id="password" name="password" required class="form-control">
-    </div> 
 
-    <div class="form-group">
-        <button type="submit" class="btn btn-primary">Login</button>
+    <form action="/login" method="post">
+        <div class="form-floating">
+            <input type="text" class="form-control" id="email" name="email" placeholder="Email" required>
+            <label for="email"><i class="fas fa-envelope me-2"></i>Email Address</label>
+        </div>
+
+        <div class="form-floating">
+            <input type="password" class="form-control" id="password" name="password" placeholder="Password" required>
+            <label for="password"><i class="fas fa-lock me-2"></i>Password</label>
+        </div>
+
+        <button type="submit" class="btn btn-login">
+            <i class="fas fa-sign-in-alt me-2"></i>Login
+        </button>
+    </form>
+
+    <div class="registration-options">
+        <p class="mb-3">New to our platform?</p>
+        <div class="registration-links">
+            <a href="{{url_for('custRegister')}}" class="reg-link customer-link">
+                <i class="fas fa-user me-2"></i>Customer
+            </a>
+            <a href="{{url_for('profRegister')}}" class="reg-link professional-link">
+                <i class="fas fa-briefcase me-2"></i>Professional
+            </a>
+        </div>
     </div>
-</form>
-<div class="link">
-    Create an account
-    <a href="{{url_for('custRegister')}}" class="">Customer</a>
-    <a href="{{url_for('profRegister')}}" class="">Professional</a>
 </div>
 {% endblock %}
-
