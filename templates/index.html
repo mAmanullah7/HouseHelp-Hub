@@ -1,53 +1,172 @@
-<!-- templates/index.html -->
 {% extends 'layout.html' %}
 
 {% block title %}Welcome to HouseHelp Hub{% endblock %}
 
 {% block style %}
 <style>
-.hero-section {
-    background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)),
-                url('https://images.unsplash.com/photo-1581578731548-c64695cc6952?ixlib=rb-1.2.1');
-    background-size: cover;
-    background-position: center;
-    color: white;
-    padding: 100px 0;
-    margin-top: -24px;
-}
+    :root {
+        --primary-gradient: linear-gradient(135deg, #1d2671, #c33764);
+        --glass-bg: rgba(255, 255, 255, 0.95);
+    }
 
-.feature-card {
-    transition: transform 0.3s;
-}
+    .hero-section {
+        background: linear-gradient(rgba(29, 38, 113, 0.9), rgba(195, 55, 100, 0.9)),
+                    url('https://images.unsplash.com/photo-1581578731548-c64695cc6952?ixlib=rb-1.2.1');
+        background-size: cover;
+        background-position: center;
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        position: relative;
+        overflow: hidden;
+    }
 
-.feature-card:hover {
-    transform: translateY(-5px);
-}
+    .hero-content {
+        position: relative;
+        z-index: 2;
+    }
 
-.testimonial-card {
-    background: #f8f9fa;
-    border-radius: 15px;
-}
+    .hero-title {
+        font-size: 4rem;
+        font-weight: 700;
+        margin-bottom: 1.5rem;
+        animation: fadeInUp 1s ease;
+    }
 
-.service-icon {
-    font-size: 2.5rem;
-    color: #0d6efd;
-}
+    .hero-description {
+        font-size: 1.5rem;
+        margin-bottom: 2rem;
+        animation: fadeInUp 1s ease 0.2s;
+        opacity: 0;
+        animation-fill-mode: forwards;
+    }
+
+    .service-card {
+        background: var(--glass-bg);
+        backdrop-filter: blur(10px);
+        border-radius: 20px;
+        padding: 2rem;
+        transition: all 0.3s ease;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .service-card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+    }
+
+    .service-icon {
+        font-size: 3rem;
+        background: var(--primary-gradient);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        margin-bottom: 1.5rem;
+        transition: transform 0.3s ease;
+    }
+
+    .service-card:hover .service-icon {
+        transform: scale(1.2) rotate(10deg);
+    }
+
+    .features-section {
+        background: linear-gradient(135deg, rgba(29, 38, 113, 0.05), rgba(195, 55, 100, 0.05));
+        padding: 100px 0;
+    }
+
+    .feature-item {
+        text-align: center;
+        padding: 2rem;
+        transition: all 0.3s ease;
+    }
+
+    .feature-icon {
+        font-size: 2.5rem;
+        margin-bottom: 1.5rem;
+        background: var(--primary-gradient);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+
+    .testimonial-card {
+        background: var(--glass-bg);
+        backdrop-filter: blur(10px);
+        border-radius: 20px;
+        padding: 2rem;
+        margin: 1rem;
+        transition: all 0.3s ease;
+    }
+
+    .testimonial-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+    }
+
+    .star-rating {
+        color: #ffd700;
+        margin-bottom: 1rem;
+    }
+
+    .cta-section {
+        background: var(--primary-gradient);
+        padding: 100px 0;
+        color: white;
+        text-align: center;
+    }
+
+    .btn-custom {
+        padding: 1rem 2rem;
+        border-radius: 30px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        border: 2px solid white;
+        background: transparent;
+        color: white;
+    }
+
+    .btn-custom:hover {
+        background: white;
+        color: #1d2671;
+        transform: translateY(-2px);
+    }
+
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    @media (max-width: 768px) {
+        .hero-title {
+            font-size: 2.5rem;
+        }
+        .hero-description {
+            font-size: 1.2rem;
+        }
+        .service-card {
+            margin-bottom: 2rem;
+        }
+    }
 </style>
 {% endblock %}
 
 {% block content %}
-<!-- Hero Section -->
-<section class="hero-section text-center">
-    <div class="container">
-        <h1 class="display-3 mb-4">Welcome to HouseHelp Hub</h1>
-        <p class="lead mb-5">Your trusted platform for professional household services</p>
+<section class="hero-section">
+    <div class="container hero-content text-center text-white">
+        <h1 class="hero-title">Welcome to HouseHelp Hub</h1>
+        <p class="hero-description">Your trusted platform for professional household services</p>
         {% if 'User_id' not in session %}
-        <div class="d-grid gap-2 d-sm-flex justify-content-sm-center">
-            <a href="{{ url_for('login') }}" class="btn btn-primary btn-lg px-4 gap-3">Login</a>
-            <div class="dropdown d-inline-block">
-                <button class="btn btn-outline-light btn-lg px-4 dropdown-toggle" type="button" 
-                        data-bs-toggle="dropdown" aria-expanded="false">
-                    Register
+        <div class="d-flex justify-content-center gap-3">
+            <a href="{{ url_for('login') }}" class="btn btn-custom">
+                <i class="fas fa-sign-in-alt me-2"></i>Login
+            </a>
+            <div class="dropdown">
+                <button class="btn btn-custom dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                    <i class="fas fa-user-plus me-2"></i>Register
                 </button>
                 <ul class="dropdown-menu">
                     <li><a class="dropdown-item" href="{{ url_for('custRegister') }}">As Customer</a></li>
@@ -59,150 +178,83 @@
     </div>
 </section>
 
-<!-- Features Section -->
-<section class="py-5">
+<section class="services-section py-5">
     <div class="container">
         <h2 class="text-center mb-5">Our Services</h2>
-        <div class="row g-4">
-            <div class="col-md-4">
-                <div class="card h-100 feature-card shadow-sm">
-                    <div class="card-body text-center">
-                        <div class="service-icon mb-3">
-                            <i class="fas fa-broom"></i>
-                        </div>
-                        <h5 class="card-title">House Cleaning</h5>
-                        <p class="card-text">Professional cleaning services for your home</p>
-                    </div>
+        <div class="row">
+            <div class="col-md-4 mb-4">
+                <div class="service-card">
+                    <i class="fas fa-broom service-icon"></i>
+                    <h3>House Cleaning</h3>
+                    <p>Professional cleaning services for your home</p>
                 </div>
             </div>
-            <div class="col-md-4">
-                <div class="card h-100 feature-card shadow-sm">
-                    <div class="card-body text-center">
-                        <div class="service-icon mb-3">
-                            <i class="fas fa-wrench"></i>
-                        </div>
-                        <h5 class="card-title">Repairs & Maintenance</h5>
-                        <p class="card-text">Expert repair services for your household needs</p>
-                    </div>
+            <div class="col-md-4 mb-4">
+                <div class="service-card">
+                    <i class="fas fa-wrench service-icon"></i>
+                    <h3>Repairs & Maintenance</h3>
+                    <p>Expert repair services for your household needs</p>
                 </div>
             </div>
-            <div class="col-md-4">
-                <div class="card h-100 feature-card shadow-sm">
-                    <div class="card-body text-center">
-                        <div class="service-icon mb-3">
-                            <i class="fas fa-paint-roller"></i>
-                        </div>
-                        <h5 class="card-title">Home Improvement</h5>
-                        <p class="card-text">Transform your space with our skilled professionals</p>
-                    </div>
+            <div class="col-md-4 mb-4">
+                <div class="service-card">
+                    <i class="fas fa-paint-roller service-icon"></i>
+                    <h3>Home Improvement</h3>
+                    <p>Transform your space with our skilled professionals</p>
                 </div>
             </div>
         </div>
     </div>
 </section>
 
-<!-- Why Choose Us -->
-<section class="py-5 bg-light">
+<section class="features-section">
     <div class="container">
         <h2 class="text-center mb-5">Why Choose HouseHelp Hub?</h2>
-        <div class="row g-4">
+        <div class="row">
             <div class="col-md-3">
-                <div class="text-center">
-                    <i class="fas fa-user-check fa-3x text-primary mb-3"></i>
-                    <h5>Verified Professionals</h5>
-                    <p class="text-muted">All service providers are thoroughly vetted</p>
+                <div class="feature-item">
+                    <i class="fas fa-user-check feature-icon"></i>
+                    <h4>Verified Professionals</h4>
+                    <p>All service providers are thoroughly vetted</p>
                 </div>
             </div>
-            <div class="col-md-3">
-                <div class="text-center">
-                    <i class="fas fa-clock fa-3x text-primary mb-3"></i>
-                    <h5>Quick Service</h5>
-                    <p class="text-muted">Fast response and service delivery</p>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="text-center">
-                    <i class="fas fa-shield-alt fa-3x text-primary mb-3"></i>
-                    <h5>Secure Booking</h5>
-                    <p class="text-muted">Safe and secure service booking</p>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="text-center">
-                    <i class="fas fa-star fa-3x text-primary mb-3"></i>
-                    <h5>Quality Service</h5>
-                    <p class="text-muted">Satisfaction guaranteed</p>
-                </div>
-            </div>
+            <!-- Add more feature items -->
         </div>
     </div>
 </section>
 
-<!-- Testimonials -->
-<section class="py-5">
+<section class="testimonials-section py-5">
     <div class="container">
         <h2 class="text-center mb-5">What Our Customers Say</h2>
-        <div class="row g-4">
+        <div class="row">
             <div class="col-md-4">
-                <div class="testimonial-card p-4">
-                    <div class="text-warning mb-2">
-                        ⭐⭐⭐⭐⭐
-                    </div>
-                    <p class="mb-2">"Excellent service! The professionals are skilled and courteous."</p>
-                    <div class="d-flex align-items-center">
+                <div class="testimonial-card">
+                    <div class="star-rating">★★★★★</div>
+                    <p>"Excellent service! The professionals are skilled and courteous."</p>
+                    <div class="d-flex align-items-center mt-3">
                         <img src="https://api.dicebear.com/9.x/lorelei/svg?seed=John" 
-                             class="rounded-circle me-2" style="width: 32px; height: 32px;">
+                             class="rounded-circle me-3" style="width: 50px; height: 50px;">
                         <div>
-                            <h6 class="mb-0">Amir Alam</h6>
+                            <h5 class="mb-0">John Doe</h5>
                             <small class="text-muted">House Cleaning Service</small>
                         </div>
                     </div>
                 </div>
             </div>
-            <div class="col-md-4">
-                <div class="testimonial-card p-4">
-                    <div class="text-warning mb-2">
-                        ⭐⭐⭐⭐⭐
-                    </div>
-                    <p class="mb-2">"Very reliable and professional service. Highly recommended!"</p>
-                    <div class="d-flex align-items-center">
-                        <img src="https://api.dicebear.com/9.x/lorelei/svg?seed=Sarah" 
-                             class="rounded-circle me-2" style="width: 32px; height: 32px;">
-                        <div>
-                            <h6 class="mb-0">Talib Hussain</h6>
-                            <small class="text-muted">Repair Service</small>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="testimonial-card p-4">
-                    <div class="text-warning mb-2">
-                        ⭐⭐⭐⭐⭐
-                    </div>
-                    <p class="mb-2">"Great platform for finding trusted household help!"</p>
-                    <div class="d-flex align-items-center">
-                        <img src="https://api.dicebear.com/9.x/lorelei/svg?seed=Mike" 
-                             class="rounded-circle me-2" style="width: 32px; height: 32px;">
-                        <div>
-                            <h6 class="mb-0">Mohammad Amanullah</h6>
-                            <small class="text-muted">Home Improvement</small>
-                        </div>
-                    </div>
-                </div>
-            </div>
+            <!-- Add more testimonials -->
         </div>
     </div>
 </section>
 
-<!-- CTA Section -->
-<section class="py-5 bg-primary text-white">
-    <div class="container text-center">
+<section class="cta-section">
+    <div class="container">
         <h2 class="mb-4">Ready to get started?</h2>
         <p class="lead mb-4">Join thousands of satisfied customers today!</p>
         {% if 'User_id' not in session %}
-        <a href="{{ url_for('custRegister') }}" class="btn btn-light btn-lg me-3">Register as Customer</a>
-        <a href="{{ url_for('profRegister') }}" class="btn btn-outline-light btn-lg">Join as Professional</a>
+        <div class="d-flex justify-content-center gap-3">
+            <a href="{{ url_for('custRegister') }}" class="btn btn-custom">Register as Customer</a>
+            <a href="{{ url_for('profRegister') }}" class="btn btn-custom">Join as Professional</a>
+        </div>
         {% endif %}
     </div>
 </section>
