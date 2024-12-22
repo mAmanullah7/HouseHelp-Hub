@@ -1,80 +1,88 @@
-
- <nav class="navbar navbar-expand-lg bg-body-tertiary" data-bs-theme="dark">
+<nav class="navbar navbar-expand-lg custom-navbar">
     <div class="container-fluid">
-        <a class="navbar-brand" href="/">
-            HouseHelp Hub
+        <!-- Brand Section -->
+        <a class="navbar-brand brand-logo" href="/">
+            <i class="fas fa-home-lg me-2"></i>
+            <span>HouseHelp Hub</span>
         </a>
+        
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
             aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
         </button>
+
         <div class="collapse navbar-collapse" id="navbarSupportedContent">
             {% if 'User_id' in session %}
             <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                 {% if user.is_admin %}
+                <!-- Admin Links -->
                 <li class="nav-item">
-                    <a class="nav-link active" aria-current="page" href="{{url_for('admin')}}">Home</a>
+                    <a class="nav-link nav-link-hover" href="{{url_for('admin')}}">
+                        <i class="fas fa-dashboard me-1"></i>Home
+                    </a>
                 </li>
-                <!-- <li class="nav-item">
-                    <form class="d-flex" role="search">
-                        <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
-                        <button class="btn btn-outline-success" type="submit">Search</button>
-                    </form>
-                </li> -->
                 <li class="nav-item">
-                    <a class="nav-link" href="{{url_for('admin_search')}}">Search</a>
+                    <a class="nav-link nav-link-hover" href="{{url_for('admin_search')}}">
+                        <i class="fas fa-search me-1"></i>Search
+                    </a>
                 </li>
-
-
                 <li class="nav-item">
-                    <a class="nav-link" href="{{url_for('admin_summary')}}">Summary</a>
+                    <a class="nav-link nav-link-hover" href="{{url_for('admin_summary')}}">
+                        <i class="fas fa-chart-bar me-1"></i>Summary
+                    </a>
                 </li>
                 {% elif user.is_provider %}
+                <!-- Professional Links -->
                 <li class="nav-item">
-                    <a class="nav-link active" aria-current="page" href="{{url_for('professional_dashboard')}}">Home</a>
+                    <a class="nav-link nav-link-hover" href="{{url_for('professional_dashboard')}}">
+                        <i class="fas fa-tools me-1"></i>Home
+                    </a>
                 </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="{{url_for('professional_search')}}">Search</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="{{url_for('professional_summary')}}">Summary</a>
-                </li>
+                <!-- ...existing professional links... -->
                 {% else %}
+                <!-- Customer Links -->
                 <li class="nav-item">
-                    <a class="nav-link active" aria-current="page" href="{{url_for('customer_dashboard')}}">Home</a>
+                    <a class="nav-link nav-link-hover" href="{{url_for('customer_dashboard')}}">
+                        <i class="fas fa-house-user me-1"></i>Home
+                    </a>
                 </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="{{url_for('customer_search')}}">Search</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="{{url_for('customer_summary')}}">Summary</a>
-                </li>
+                <!-- ...existing customer links... -->
                 {% endif %}
             </ul>
-            <div class="d-flex align-items-center">
-                <a href="{{url_for('profile')}}">
-                    <img src="https://api.dicebear.com/9.x/lorelei/svg?seed={{user.username}}" alt="Profile"
-                        class="rounded-circle me-2" style="width: 32px; height: 32px;">
+            <!-- Profile Section -->
+            <div class="d-flex align-items-center profile-section">
+                <a href="{{url_for('profile')}}" class="profile-link">
+                    <div class="profile-pic-wrapper">
+                        <img src="https://api.dicebear.com/9.x/lorelei/svg?seed={{user.username}}" 
+                             alt="Profile"
+                             class="profile-pic">
+                    </div>
                 </a>
-                <a href="{{url_for('logout')}}" class="btn btn-outline-danger">Logout</a>
+                <a href="{{url_for('logout')}}" class="btn btn-logout">
+                    <i class="fas fa-sign-out-alt me-1"></i>Logout
+                </a>
             </div>
             {% else %}
-            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+            <!-- Auth Links -->
+            <ul class="navbar-nav ms-auto">
                 <li class="nav-item">
-                    <a class="nav-link" href="{{url_for('login')}}">Login</a>
+                    <a class="nav-link nav-link-hover" href="{{url_for('login')}}">
+                        <i class="fas fa-sign-in-alt me-1"></i>Login
+                    </a>
                 </li>
                 <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"
-                        aria-expanded="false">
-                        Register
+                    <a class="nav-link dropdown-toggle nav-link-hover" href="#" role="button" 
+                       data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="fas fa-user-plus me-1"></i>Register
                     </a>
-                    <ul class="dropdown-menu">
-                        <li><a class="dropdown-item" href="{{url_for('custRegister')}}">Customer</a></li>
-                        <li><a class="dropdown-item" href="{{url_for('profRegister')}}">Professional</a></li>
-                        <li>
-                            <hr class="dropdown-divider">
-                        </li>
-                        <li><a class="dropdown-item" href="{{url_for('login')}}">Login</a></li>
+                    <ul class="dropdown-menu custom-dropdown">
+                        <li><a class="dropdown-item" href="{{url_for('custRegister')}}">
+                            <i class="fas fa-user me-2"></i>Customer</a></li>
+                        <li><a class="dropdown-item" href="{{url_for('profRegister')}}">
+                            <i class="fas fa-briefcase me-2"></i>Professional</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item" href="{{url_for('login')}}">
+                            <i class="fas fa-sign-in-alt me-2"></i>Login</a></li>
                     </ul>
                 </li>
             </ul>
@@ -82,3 +90,104 @@
         </div>
     </div>
 </nav>
+
+<style>
+    .custom-navbar {
+        background: linear-gradient(135deg, rgba(29, 38, 113, 0.95), rgba(195, 55, 100, 0.95));
+        backdrop-filter: blur(10px);
+        padding: 1rem;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+    }
+
+    .brand-logo {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: white !important;
+        transition: all 0.3s ease;
+    }
+
+    .brand-logo:hover {
+        transform: translateY(-2px);
+        text-shadow: 0 0 10px rgba(255,255,255,0.5);
+    }
+
+    .nav-link-hover {
+        color: rgba(255,255,255,0.8) !important;
+        transition: all 0.3s ease;
+        position: relative;
+    }
+
+    .nav-link-hover::after {
+        content: '';
+        position: absolute;
+        width: 0;
+        height: 2px;
+        bottom: 0;
+        left: 0;
+        background-color: white;
+        transition: width 0.3s ease;
+    }
+
+    .nav-link-hover:hover::after {
+        width: 100%;
+    }
+
+    .profile-pic-wrapper {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        overflow: hidden;
+        border: 2px solid white;
+        transition: all 0.3s ease;
+    }
+
+    .profile-pic {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .profile-pic-wrapper:hover {
+        transform: scale(1.1);
+        box-shadow: 0 0 15px rgba(255,255,255,0.3);
+    }
+
+    .btn-logout {
+        background: transparent;
+        border: 2px solid rgba(255,255,255,0.8);
+        color: white;
+        margin-left: 1rem;
+        transition: all 0.3s ease;
+    }
+
+    .btn-logout:hover {
+        background: rgba(255,255,255,0.1);
+        border-color: white;
+        color: white;
+        transform: translateY(-2px);
+    }
+
+    .custom-dropdown {
+        background: rgba(255,255,255,0.95);
+        backdrop-filter: blur(10px);
+        border: none;
+        border-radius: 10px;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+    }
+
+    .dropdown-item {
+        transition: all 0.3s ease;
+    }
+
+    .dropdown-item:hover {
+        background: rgba(29, 38, 113, 0.1);
+        transform: translateX(5px);
+    }
+
+    @media (max-width: 991px) {
+        .profile-section {
+            margin-top: 1rem;
+            justify-content: center;
+        }
+    }
+</style>
