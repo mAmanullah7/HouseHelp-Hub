@@ -151,6 +151,13 @@
             margin-bottom: 2rem;
         }
     }
+    .feature-item:hover {
+        transform: translateY(-5px);
+    }
+    
+    .feature-item:hover .feature-icon {
+        transform: scale(1.1);
+    }
 </style>
 {% endblock %}
 
@@ -218,7 +225,30 @@
                     <p>All service providers are thoroughly vetted</p>
                 </div>
             </div>
+
             <!-- Add more feature items -->
+            <div class="col-md-3">
+                <div class="feature-item">
+                    <i class="fas fa-clock feature-icon"></i>
+                    <h4>Quick Service</h4>
+                    <p>Fast response and service delivery</p>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="feature-item">
+                    <i class="fas fa-money-bill-wave feature-icon"></i>
+                    <h4>Money-Back Guarantee</h4>
+                    <p>100% satisfaction or your money back</p>
+                </div>
+            </div>
+        
+            <div class="col-md-3" >
+                <div class="feature-item">
+                    <i class="fas fa-headset feature-icon"></i>
+                    <h4>24/7 Support</h4>
+                    <p>Round-the-clock customer assistance</p>
+                </div>
+            </div>
         </div>
     </div>
 </section>
@@ -230,18 +260,47 @@
             <div class="col-md-4">
                 <div class="testimonial-card">
                     <div class="star-rating">★★★★★</div>
-                    <p>"Excellent service! The professionals are skilled and courteous."</p>
+                    <p>Excellent service! The professionals are skilled and courteous.</p>
                     <div class="d-flex align-items-center mt-3">
                         <img src="https://api.dicebear.com/9.x/lorelei/svg?seed=Rhuilafru" alt="Rhuilafru Mog" 
                              class="rounded-circle me-3" style="width: 50px; height: 50px;">
                         <div>
                             <h5 class="mb-0">Rhuilafru Mog</h5>
-                            <small class="text-muted">House Cleaning Service</small>
+                            <small class="text-muted">House Cleaning & Decoration Service</small>
                         </div>
                     </div>
                 </div>
             </div>
             <!-- Add more testimonials -->
+            <div class="col-md-4">
+                <div class="testimonial-card">
+                    <div class="star-rating">★★★★★</div>
+                    <p>Outstanding support! They resolved my software issues quickly and efficiently.</p>
+                    <div class="d-flex align-items-center mt-3">
+                        <img src="https://api.dicebear.com/9.x/lorelei/svg?seed=Talib" alt="Talib Hussain" 
+                             class="rounded-circle me-3" style="width: 50px; height: 50px;">
+                        <div>
+                            <h5 class="mb-0">Talib Hussain </h5>
+                            <small class="text-muted">Computer Software Service</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="testimonial-card">
+                    <div class="star-rating">★★★★★</div>
+                    <p>Top-notch service! They fixed my car in no time and explained everything clearly.</p>
+                    <div class="d-flex align-items-center mt-3">
+                        <img src="https://api.dicebear.com/9.x/lorelei/svg?seed=Amir" alt="Amir Alam" 
+                             class="rounded-circle me-3" style="width: 50px; height: 50px;">
+                        <div>
+                            <h5 class="mb-0">Amir Alam</h5>
+                            <small class="text-muted"> Car Mechanic Service</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
         </div>
     </div>
 </section>
