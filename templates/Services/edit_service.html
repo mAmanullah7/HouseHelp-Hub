@@ -1,30 +1,177 @@
 {% extends 'layout.html' %}
 
-{% block title %}
-Edit Service
+{% block title %}Edit Service{% endblock %}
+
+{% block style %}
+<style>
+    .edit-service-container {
+        background: linear-gradient(rgba(29, 38, 113, 0.8), rgba(195, 55, 100, 0.8)),
+                    url('https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&q=80');
+        background-size: cover;
+        background-attachment: fixed;
+        min-height: 100vh;
+        padding: 2rem;
+    }
+
+    .form-card {
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
+        border-radius: 20px;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        padding: 2.5rem;
+        max-width: 600px;
+        margin: 2rem auto;
+        transition: all 0.3s ease;
+    }
+
+    .form-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2);
+    }
+
+    .page-title {
+        color: white;
+        text-align: center;
+        margin-bottom: 2rem;
+        font-weight: 700;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+    }
+
+    .form-label {
+        color: #1d2671;
+        font-weight: 600;
+        margin-bottom: 0.8rem;
+    }
+
+    .form-control {
+        border-radius: 10px;
+        border: 2px solid #e9ecef;
+        padding: 1rem;
+        transition: all 0.3s ease;
+        font-size: 1rem;
+    }
+
+    .form-control:focus {
+        border-color: #1d2671;
+        box-shadow: 0 0 0 0.25rem rgba(29, 38, 113, 0.25);
+    }
+
+    .btn-custom {
+        padding: 0.8rem 1.5rem;
+        border-radius: 10px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+
+    .btn-update {
+        background: linear-gradient(135deg, #1d2671, #c33764);
+        border: none;
+        color: white;
+    }
+
+    .btn-update:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(29, 38, 113, 0.3);
+    }
+
+    .btn-cancel {
+        background: transparent;
+        border: 2px solid #6c757d;
+        color: #6c757d;
+    }
+
+    .btn-cancel:hover {
+        background: #6c757d;
+        color: white;
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    .animate-fade-in {
+        animation: fadeIn 0.5s ease forwards;
+    }
+</style>
 {% endblock %}
 
 {% block content %}
-<h1 class="display-1">Edit Service</h1>
-<form action="" method="post" class="form">
-    <div class="mb-3">
-        <label for="name" class="form-label">Name</label>
-        <input type="text" class="form-control" id="name" name="name" value="{{service.service_name}}" required>
-    </div>
-    <div class="mb-3">
-        <label for="price" class="form-label">Price</label>
-        <input type="number" class="form-control" id="price" name="price" value="{{service.price}}" required>
-    </div>
-    <div class="mb-3">
-        <label for="description" class="form-label">Description</label>
-        <textarea class="form-control" id="description" name="description" rows="3">{{service.description}}</textarea>
-    </div>
-    <div class="mb-3">
-        <button type="submit" class="btn btn-success me-2">
-            Update  Service
-        </button>
-        <a href="{{ url_for('admin') }}" class="btn btn-secondary">Cancel</a>
-    </div>
-</form>
+<div class="edit-service-container">
+    <h1 class="page-title display-4">Edit Service</h1>
 
+    <div class="form-card animate-fade-in">
+        <form action="" method="post" class="needs-validation" novalidate>
+            <div class="mb-4">
+                <label for="name" class="form-label">
+                    <i class="fas fa-tag me-2"></i>Service Name
+                </label>
+                <input type="text" 
+                       class="form-control" 
+                       id="name" 
+                       name="name" 
+                       value="{{service.service_name}}" 
+                       required>
+                <div class="invalid-feedback">
+                    Please provide a service name.
+                </div>
+            </div>
+
+            <div class="mb-4">
+                <label for="price" class="form-label">
+                    <i class="fas fa-rupee-sign me-2"></i>Price
+                </label>
+                <input type="number" 
+                       class="form-control" 
+                       id="price" 
+                       name="price" 
+                       value="{{service.price}}" 
+                       required>
+                <div class="invalid-feedback">
+                    Please provide a valid price.
+                </div>
+            </div>
+
+            <div class="mb-4">
+                <label for="description" class="form-label">
+                    <i class="fas fa-align-left me-2"></i>Description
+                </label>
+                <textarea class="form-control" 
+                          id="description" 
+                          name="description" 
+                          rows="4">{{service.description}}</textarea>
+            </div>
+
+            <div class="d-flex justify-content-end gap-3">
+                <a href="{{ url_for('admin') }}" class="btn btn-custom btn-cancel">
+                    <i class="fas fa-times me-2"></i>Cancel
+                </a>
+                <button type="submit" class="btn btn-custom btn-update">
+                    <i class="fas fa-save me-2"></i>Update Service
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block script %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.querySelector('.needs-validation');
+    
+    form.addEventListener('submit', function(event) {
+        if (!form.checkValidity()) {
+            event.preventDefault();
+            event.stopPropagation();
+        }
+        form.classList.add('was-validated');
+
+        const submitBtn = this.querySelector('button[type="submit"]');
+        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Updating...';
+        submitBtn.disabled = true;
+    });
+});
+</script>
 {% endblock %}

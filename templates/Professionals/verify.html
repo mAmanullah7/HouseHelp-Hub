@@ -1,36 +1,164 @@
 {% extends 'layout.html' %}
 
-{% block title %}
-Verify Professional
+{% block title %}Verify Professional{% endblock %}
+
+{% block style %}
+<style>
+    .verify-container {
+        background: linear-gradient(rgba(29, 38, 113, 0.8), rgba(195, 55, 100, 0.8)),
+                    url('https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&q=80');
+        background-size: cover;
+        background-attachment: fixed;
+        min-height: 100vh;
+        padding: 2rem;
+    }
+
+    .verify-card {
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
+        border-radius: 20px;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        margin: 2rem auto;
+        max-width: 800px;
+        animation: slideIn 0.5s ease;
+    }
+
+    .card-header {
+        background: linear-gradient(135deg, #1d2671, #c33764);
+        color: white;
+        padding: 1.5rem;
+        border-radius: 20px 20px 0 0;
+    }
+
+    .profile-section {
+        padding: 2rem;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+    }
+
+    .profile-item {
+        display: flex;
+        margin-bottom: 1rem;
+        padding: 0.5rem;
+        background: rgba(0, 0, 0, 0.02);
+        border-radius: 10px;
+    }
+
+    .profile-label {
+        font-weight: 600;
+        width: 120px;
+        color: #1d2671;
+    }
+
+    .pdf-container {
+        padding: 1rem;
+        background: rgba(0, 0, 0, 0.02);
+        border-radius: 10px;
+        margin: 1rem 0;
+    }
+
+    .pdf-viewer {
+        border: none;
+        border-radius: 10px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    .verification-form {
+        padding: 2rem;
+        text-align: center;
+    }
+
+    .alert-custom {
+        background: linear-gradient(135deg, #ffd700, #ffa500);
+        color: #000;
+        border: none;
+        border-radius: 10px;
+        padding: 1rem;
+    }
+
+    .btn-custom {
+        padding: 0.8rem 2rem;
+        border-radius: 10px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        margin: 0 0.5rem;
+    }
+
+    .btn-verify {
+        background: linear-gradient(135deg, #00b09b, #96c93d);
+        border: none;
+        color: white;
+    }
+
+    .btn-cancel {
+        background: transparent;
+        border: 2px solid #6c757d;
+        color: #6c757d;
+    }
+
+    .btn-custom:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    }
+
+    @keyframes slideIn {
+        from { transform: translateY(-20px); opacity: 0; }
+        to { transform: translateY(0); opacity: 1; }
+    }
+</style>
 {% endblock %}
 
 {% block content %}
-<div class="container mt-5">
-    <h2>Verify Professional</h2>
-    <div class="card mb-4">
-        <div class="card-body">
-            <h5>Name: {{ provider.name }}</h5>
-            <p>Service: {{ provider.service_type }}</p>
-            <p>Experience: {{ provider.experience }}</p>
-            <p>Address: {{ provider.address }}</p>
-            <p>Pincode: {{ provider.pincode }}</p>
-            
-            <!-- PDF Resume Display -->
-            <div class="mb-4">
-                <h5>Resume:</h5>
-                <embed src="{{ url_for('static', filename='pdfs/' + provider.username + '.pdf') }}"
-                       type="application/pdf"
-                       width="100%"
-                       height="600px"
-                       class="border rounded">
-            </div>
+<div class="verify-container">
+    <div class="verify-card">
+        <div class="card-header">
+            <h2 class="mb-0">Professional Verification</h2>
+        </div>
 
+        <div class="profile-section">
+            <div class="profile-item">
+                <span class="profile-label"><i class="fas fa-user me-2"></i>Name:</span>
+                <span>{{ provider.name }}</span>
+            </div>
+            <div class="profile-item">
+                <span class="profile-label"><i class="fas fa-tools me-2"></i>Service:</span>
+                <span>{{ provider.service_type }}</span>
+            </div>
+            <div class="profile-item">
+                <span class="profile-label"><i class="fas fa-briefcase me-2"></i>Experience:</span>
+                <span>{{ provider.experience }} years</span>
+            </div>
+            <div class="profile-item">
+                <span class="profile-label"><i class="fas fa-map-marker-alt me-2"></i>Address:</span>
+                <span>{{ provider.address }}</span>
+            </div>
+            <div class="profile-item">
+                <span class="profile-label"><i class="fas fa-map-pin me-2"></i>Pincode:</span>
+                <span>{{ provider.pincode }}</span>
+            </div>
+        </div>
+
+        <div class="pdf-container">
+            <h5 class="mb-3"><i class="fas fa-file-pdf me-2"></i>Resume</h5>
+            <embed src="{{ url_for('static', filename='pdfs/' + provider.username + '.pdf') }}"
+                   type="application/pdf"
+                   width="100%"
+                   height="600px"
+                   class="pdf-viewer">
+        </div>
+
+        <div class="verification-form">
             <form method="POST">
-                <div class="alert alert-warning">
+                <div class="alert alert-custom mb-4">
+                    <i class="fas fa-exclamation-circle me-2"></i>
                     Are you sure you want to verify this professional?
                 </div>
-                <a href="{{ url_for('admin') }}" class="btn btn-secondary">Cancel</a>
-                <button type="submit" class="btn btn-success">Verify</button>
+                <a href="{{ url_for('admin') }}" class="btn btn-custom btn-cancel">
+                    <i class="fas fa-times me-2"></i>Cancel
+                </a>
+                <button type="submit" class="btn btn-custom btn-verify">
+                    <i class="fas fa-check me-2"></i>Verify
+                </button>
             </form>
         </div>
     </div>

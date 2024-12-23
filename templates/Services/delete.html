@@ -1,22 +1,113 @@
 {% extends 'layout.html' %}
 
-{% block title %}
-Delete Service
+{% block title %}Delete Service{% endblock %}
+
+{% block style %}
+<style>
+    .delete-container {
+        background: linear-gradient(rgba(220, 53, 69, 0.8), rgba(0, 0, 0, 0.8)),
+                    url('https://images.unsplash.com/photo-1555231955-348aa2312e19?auto=format&fit=crop&q=80');
+        background-size: cover;
+        background-attachment: fixed;
+        min-height: 100vh;
+        padding: 2rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .confirmation-card {
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
+        border-radius: 20px;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        padding: 2.5rem;
+        max-width: 500px;
+        width: 100%;
+        text-align: center;
+        animation: slideIn 0.5s ease;
+    }
+
+    @keyframes slideIn {
+        from { transform: translateY(-20px); opacity: 0; }
+        to { transform: translateY(0); opacity: 1; }
+    }
+
+    .warning-icon {
+        font-size: 4rem;
+        color: #dc3545;
+        margin-bottom: 1.5rem;
+        animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+        0% { transform: scale(1); }
+        50% { transform: scale(1.1); }
+        100% { transform: scale(1); }
+    }
+
+    .service-name {
+        color: #dc3545;
+        font-size: 1.5rem;
+        font-weight: 700;
+        margin-bottom: 1.5rem;
+    }
+
+    .btn-group {
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+        margin-top: 2rem;
+    }
+
+    .btn-custom {
+        padding: 0.8rem 2rem;
+        border-radius: 10px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+
+    .btn-delete {
+        background: linear-gradient(135deg, #dc3545, #c82333);
+        border: none;
+        color: white;
+    }
+
+    .btn-cancel {
+        background: transparent;
+        border: 2px solid #6c757d;
+        color: #6c757d;
+    }
+
+    .btn-custom:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    }
+</style>
 {% endblock %}
 
 {% block content %}
-<h1 class="display-1">Delete Service</h1>
+<div class="delete-container">
+    <div class="confirmation-card">
+        <i class="fas fa-exclamation-triangle warning-icon"></i>
+        
+        <h2 class="mb-4">Delete Confirmation</h2>
+        
+        <p class="mb-3">Are you sure you want to delete</p>
+        <div class="service-name">{{ service.service_name }}</div>
+        <p class="text-muted">This action cannot be undone.</p>
 
-<p class="f-3" >Are you sure want to delete {{service.service_name}} ?</p>
-
-
-<form action="" method="post" class="form">
-
-    <button type="submit" class="btn btn-danger" title="delete">
-        <i class="fas fa-trash"></i>
-        Delete
-    </button>
-
-</form>
-
+        <div class="btn-group">
+            <a href="{{ url_for('admin') }}" class="btn btn-custom btn-cancel">
+                <i class="fas fa-times me-2"></i>Cancel
+            </a>
+            <form action="" method="post" class="d-inline">
+                <button type="submit" class="btn btn-custom btn-delete">
+                    <i class="fas fa-trash me-2"></i>Delete
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
 {% endblock %}
