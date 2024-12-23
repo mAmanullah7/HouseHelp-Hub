@@ -4,174 +4,335 @@
 
 {% block style %}
 <style>
-.stat-card {
-    transition: transform 0.3s;
-}
-.stat-card:hover {
-    transform: translateY(-5px);
-}
-.chart-container {
-    position: relative;
-    margin: auto;
-    height: 300px;
-}
+    /* Main Container */
+    .dashboard-container {
+        background: linear-gradient(rgba(29, 38, 113, 0.8), rgba(195, 55, 100, 0.8)),
+            url('https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&q=80');
+        background-size: cover;
+        background-attachment: fixed;
+        min-height: 100vh;
+        padding: 2rem;
+    }
+
+    /* Glass Card Effect */
+    .glass-card {
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
+        border-radius: 15px;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        transition: all 0.3s ease;
+    }
+
+    /* Stat Cards */
+    .stat-card {
+        background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.05));
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 15px;
+        padding: 1.5rem;
+        transition: all 0.3s ease;
+    }
+
+    .stat-card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
+    }
+
+    .stat-card .card-title {
+        font-size: 1.1rem;
+        opacity: 0.9;
+    }
+
+    .stat-card .card-text {
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin: 1rem 0 0;
+    }
+
+    /* Chart Containers */
+    .chart-container {
+        position: relative;
+        height: 300px;
+        padding: 1rem;
+    }
+
+    .chart-card {
+        background: rgba(255, 255, 255, 0.95);
+        border-radius: 15px;
+        margin-bottom: 2rem;
+    }
+
+    .chart-card .card-title {
+        color: #1d2671;
+        font-weight: 600;
+        padding: 1rem;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+    }
+
+    /* Table Styling */
+    .table-card {
+        background: rgba(255, 255, 255, 0.95);
+        border-radius: 15px;
+        overflow: hidden;
+    }
+
+    .table {
+        margin: 0;
+    }
+
+    .table th {
+        background: linear-gradient(135deg, #1d2671, #c33764);
+        color: white;
+        border: none;
+        padding: 1rem;
+    }
+
+    .table td {
+        padding: 1rem;
+        vertical-align: middle;
+    }
+
+    /* Badges */
+    .badge {
+        padding: 0.6rem 1rem;
+        border-radius: 20px;
+        font-weight: 500;
+    }
+
+    .badge-verified {
+        background: linear-gradient(135deg, #00b09b, #96c93d);
+    }
+
+    .badge-pending {
+        background: linear-gradient(135deg, #f6d365, #fda085);
+    }
+
+    /* Animations */
+    @keyframes countUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .animate-count {
+        animation: countUp 0.5s ease forwards;
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+        .dashboard-container {
+            padding: 1rem;
+        }
+
+        .stat-card {
+            margin-bottom: 1rem;
+        }
+
+        .chart-container {
+            height: 250px;
+        }
+    }
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="container py-4">
-    <h1 class="display-4 mb-4">Dashboard Summary</h1>
+<div class="dashboard-container">
+    <h1 class="display-4 mb-4 text-white">Dashboard Summary</h1>
 
     <!-- Statistics Cards -->
     <div class="row g-4 mb-5">
         <div class="col-md-3">
-            <div class="card stat-card bg-primary text-white">
-                <div class="card-body">
-                    <h5 class="card-title">Total Customers</h5>
-                    <h2 class="card-text">{{ total_customers }}</h2>
-                </div>
+            <div class="stat-card text-white" style="background: linear-gradient(135deg, #6a11cb, #2575fc);">
+                <h5 class="card-title">Total Customers</h5>
+                <h2 class="card-text animate-count">{{ total_customers }}</h2>
+                <i class="fas fa-users position-absolute top-0 end-0 m-3 fa-2x opacity-50"></i>
             </div>
         </div>
         <div class="col-md-3">
-            <div class="card stat-card bg-success text-white">
-                <div class="card-body">
-                    <h5 class="card-title">Total Professionals</h5>
-                    <h2 class="card-text">{{ total_providers }}</h2>
-                </div>
+            <div class="stat-card text-white" style="background: linear-gradient(135deg, #11998e, #38ef7d);">
+                <h5 class="card-title">Total Professionals</h5>
+                <h2 class="card-text animate-count">{{ total_providers }}</h2>
+                <i class="fas fa-user-tie position-absolute top-0 end-0 m-3 fa-2x opacity-50"></i>
             </div>
         </div>
         <div class="col-md-3">
-            <div class="card stat-card bg-info text-white">
-                <div class="card-body">
-                    <h5 class="card-title">Total Services</h5>
-                    <h2 class="card-text">{{ total_services }}</h2>
-                </div>
+            <div class="stat-card text-white" style="background: linear-gradient(135deg, #fc4a1a, #f7b733);">
+                <h5 class="card-title">Total Services</h5>
+                <h2 class="card-text animate-count">{{ total_services }}</h2>
+                <i class="fas fa-tools position-absolute top-0 end-0 m-3 fa-2x opacity-50"></i>
             </div>
         </div>
         <div class="col-md-3">
-            <div class="card stat-card bg-warning text-white">
-                <div class="card-body">
-                    <h5 class="card-title">Total Requests</h5>
-                    <h2 class="card-text">{{ total_requests }}</h2>
-                </div>
+            <div class="stat-card text-white" style="background: linear-gradient(135deg, #ee0979, #ff6a00);">
+                <h5 class="card-title">Total Requests</h5>
+                <h2 class="card-text animate-count">{{ total_requests }}</h2>
+                <i class="fas fa-clipboard-list position-absolute top-0 end-0 m-3 fa-2x opacity-50"></i>
             </div>
         </div>
     </div>
 
     <!-- Charts Row -->
     <div class="row g-4 mb-5">
-        <!-- Service Requests Status -->
         <div class="col-md-6">
-            <div class="card">
-                <div class="card-body">
-                    <h5 class="card-title">Service Requests Status</h5>
-                    <div class="chart-container">
-                        <canvas id="requestsChart"></canvas>
-                    </div>
+            <div class="chart-card glass-card">
+                <h5 class="card-title">Service Requests Status</h5>
+                <div class="chart-container">
+                    <canvas id="requestsChart"></canvas>
                 </div>
             </div>
         </div>
-
-        <!-- Top Requested Services -->
         <div class="col-md-6">
-            <div class="card">
-                <div class="card-body">
-                    <h5 class="card-title">Most Requested Services</h5>
-                    <div class="chart-container">
-                        <canvas id="servicesChart"></canvas>
-                    </div>
+            <div class="chart-card glass-card">
+                <h5 class="card-title">Most Requested Services</h5>
+                <div class="chart-container">
+                    <canvas id="servicesChart"></canvas>
                 </div>
             </div>
         </div>
+        
     </div>
 
-    <!-- Top Professionals -->
-    <div class="card mb-5">
-        <div class="card-body">
-            <h5 class="card-title">Top Rated Professionals</h5>
-            <div class="table-responsive">
-                <table class="table table-hover">
-                    <thead>
-                        <tr>
-                            <th>Professional</th>
-                            <th>Service Type</th>
-                            <th>Rating</th>
-                            <th>Reviews</th>
-                            <th>Status</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for prof in top_professionals %}
-                        <tr>
-                            <td>
-                                <img src="https://api.dicebear.com/9.x/lorelei/svg?seed={{prof.username}}" 
-                                     class="rounded-circle me-2" style="width: 32px; height: 32px;">
-                                {{ prof.name }}
-                            </td>
-                            <td>{{ prof.service_type }}</td>
-                            <td>
-                                <span class="text-warning">
-                                    {% for i in range(prof.avg_rating|round|int) %}⭐{% endfor %}
-                                </span>
-                                ({{ "%.1f"|format(prof.avg_rating) }})
-                            </td>
-                            <td>{{ prof.rating_count }}</td>
-                            <td>
-                                <span class="badge {% if prof.is_verified %}bg-success{% else %}bg-warning{% endif %}">
-                                    {{ 'Verified' if prof.is_verified else 'Pending' }}
-                                </span>
-                            </td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
+
+
+
+    <!-- Top Professionals Table -->
+    <div class="table-card glass-card">
+        <h5 class="card-title p-3">Top Rated Professionals</h5>
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead>
+                    <tr>
+                        <th>Professional</th>
+                        <th>Service Type</th>
+                        <th>Rating</th>
+                        <th>Reviews</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for prof in top_professionals %}
+                    <tr>
+                        <td class="d-flex align-items-center">
+                            <img src="https://api.dicebear.com/9.x/lorelei/svg?seed={{prof.username}}"
+                                class="rounded-circle me-2"
+                                style="width: 40px; height: 40px; border: 2px solid #fff; box-shadow: 0 2px 6px rgba(0,0,0,0.1);">
+                            <div>
+                                <strong>{{ prof.name }}</strong>
+                                <div class="small text-muted">{{ prof.username }}</div>
+                            </div>
+                        </td>
+                        <td>
+                            <span class="badge bg-info">{{ prof.service_type }}</span>
+                        </td>
+                        <td>
+                            <div class="text-warning">
+                                {% for i in range(prof.avg_rating|round|int) %}⭐{% endfor %}
+                                <span class="text-muted ms-1">({{ "%.1f"|format(prof.avg_rating) }})</span>
+                            </div>
+                        </td>
+                        <td>
+                            <span class="badge bg-secondary">{{ prof.rating_count }} reviews</span>
+                        </td>
+                        <td>
+                            <span
+                                class="badge {% if prof.is_verified %}badge-verified{% else %}badge-pending{% endif %}">
+                                {{ 'Verified' if prof.is_verified else 'Pending' }}
+                            </span>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
         </div>
     </div>
-</div>
-{% endblock %}
+    {% endblock %}
 
-{% block script %}
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script>
-// Service Requests Status Chart
-const requestsCtx = document.getElementById('requestsChart').getContext('2d');
-new Chart(requestsCtx, {
-    type: 'doughnut',
-    data: {
-        labels: ['Pending', 'Active', 'Completed'],
-        datasets: [{
-            data: [{{ pending_requests }}, {{ active_requests }}, {{ completed_requests }}],
-            backgroundColor: ['#ffc107', '#0dcaf0', '#198754']
-        }]
-    },
-    options: {
-        responsive: true,
-        maintainAspectRatio: false
+    {% block script %}
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        // Enhanced Chart Configurations
+        const chartOptions = {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: {
+                        padding: 20,
+                        font: {
+                            size: 12,
+                            family: "'Poppins', sans-serif"
+                        }
+                    }
+                }
+            },
+            animation: {
+                duration: 2000,
+                easing: 'easeInOutQuart'
+            }
+        };
+
+        // Requests Chart
+        const requestsChart = new Chart(
+            document.getElementById('requestsChart').getContext('2d'),
+            {
+                type: 'doughnut',
+                data: {
+                    labels: ['Pending', 'Active', 'Completed'],
+                    datasets: [{
+                        data: [{{ pending_requests }}, {{ active_requests }}, {{ completed_requests }}],
+        backgroundColor: [
+            'rgba(255, 193, 7, 0.8)',
+            'rgba(13, 202, 240, 0.8)',
+            'rgba(25, 135, 84, 0.8)'
+        ],
+            borderColor: 'rgba(255, 255, 255, 0.5)',
+                borderWidth: 2
+            }]
+        },
+        options: chartOptions
     }
-});
+);
 
-// Most Requested Services Chart
-const servicesCtx = document.getElementById('servicesChart').getContext('2d');
-new Chart(servicesCtx, {
-    type: 'bar',
-    data: {
-        labels: [{% for service in service_stats %}'{{ service.service_name }}',{% endfor %}],
+        // Services Chart
+        const servicesChart = new Chart(
+            document.getElementById('servicesChart').getContext('2d'),
+            {
+                type: 'bar',
+                data: {
+                    labels: [{% for service in service_stats %}'{{ service.service_name }}',{% endfor %}],
         datasets: [{
             label: 'Number of Requests',
-            data: [{% for service in service_stats %}{{ service.request_count }},{% endfor %}],
-            backgroundColor: '#0d6efd'
-        }]
-    },
-    options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        scales: {
-            y: {
-                beginAtZero: true
+            data: [{% for service in service_stats %}{{ service.request_count }}, {% endfor %}],
+            backgroundColor: 'rgba(13, 110, 253, 0.8)',
+                borderColor: 'rgba(255, 255, 255, 0.5)',
+                    borderWidth: 2
+            }]
+        },
+        options: {
+            ...chartOptions,
+                scales: {
+                y: {
+                    beginAtZero: true,
+                        grid: {
+                        color: 'rgba(255, 255, 255, 0.1)'
+                    }
+                },
+                x: {
+                    grid: {
+                        display: false
+                    }
+                }
             }
         }
     }
-});
-</script>
-{% endblock %}
+);
+    </script>
+    {% endblock %}
