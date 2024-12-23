@@ -2,235 +2,397 @@
 
 {% block title %}Admin Search{% endblock %}
 
+{% block style %}
+<style>
+    /* Main Container */
+    .admin-search {
+        background: linear-gradient(rgba(29, 38, 113, 0.8), rgba(195, 55, 100, 0.8)),
+            url('https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&q=80');
+        background-size: cover;
+        background-attachment: fixed;
+        min-height: 100vh;
+        padding: 2rem;
+    }
+
+    /* Cards */
+    .glass-card {
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
+        border-radius: 15px;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        transition: all 0.3s ease;
+    }
+
+    /* Form Elements */
+    .form-control,
+    .form-select {
+        border-radius: 10px;
+        border: 2px solid #eee;
+        padding: 0.8rem;
+        transition: all 0.3s ease;
+    }
+
+    .form-control:focus,
+    .form-select:focus {
+        border-color: #1d2671;
+        box-shadow: 0 0 0 0.25rem rgba(29, 38, 113, 0.25);
+    }
+
+    .form-label {
+        color: #1d2671;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+    }
+
+    /* Search Button */
+    .search-btn {
+        background: linear-gradient(135deg, #1d2671, #c33764);
+        border: none;
+        padding: 1rem;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+
+    .search-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    }
+
+    /* Table Styling */
+    .table {
+        border-radius: 10px;
+        overflow: hidden;
+    }
+
+    .table th {
+        background: linear-gradient(135deg, #1d2671, #c33764);
+        color: white;
+        border: none;
+        padding: 1rem;
+    }
+
+    .table td {
+        padding: 1rem;
+        vertical-align: middle;
+    }
+
+    /* Status Badges */
+    .badge {
+        padding: 0.6rem 1rem;
+        border-radius: 20px;
+        font-weight: 500;
+    }
+
+    .badge-verified {
+        background: linear-gradient(135deg, #00b09b, #96c93d);
+    }
+
+    .badge-pending {
+        background: linear-gradient(135deg, #f6d365, #fda085);
+    }
+
+    .badge-blocked {
+        background: linear-gradient(135deg, #ff416c, #ff4b2b);
+    }
+
+    /* Action Buttons */
+    .btn-action {
+        border-radius: 8px;
+        padding: 0.5rem 1rem;
+        transition: all 0.3s ease;
+    }
+
+    .btn-action:hover {
+        transform: translateY(-2px);
+    }
+
+    /* Animations */
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .fade-in {
+        animation: fadeIn 0.5s ease forwards;
+    }
+
+    /* Loading State */
+    .loading {
+        position: relative;
+        opacity: 0.7;
+    }
+
+    .loading::after {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(255, 255, 255, 0.8);
+        backdrop-filter: blur(5px);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+</style>
+{% endblock %}
+
 {% block content %}
-<div class="container-fluid py-4">
-    <h1 class="display-4 mb-4">Search</h1>
+<div class="admin-search">
+    <div class="container-fluid">
+        <h1 class="display-4 mb-4 text-white">Advanced Search</h1>
 
-    <!-- Search Filters -->
-    <div class="card mb-4">
-        <div class="card-body">
-            <form method="GET" action="{{ url_for('admin_search') }}" id="searchForm">
-                <div class="row g-3">
-                    <!-- Search Type -->
-                    <div class="col-md-3">
-                        <label class="form-label">Search Category</label>
-                        <select class="form-select" name="search_type" id="searchType">
-                            <option value="all">All</option>
-                            <option value="services">Services</option>
-                            <option value="professionals">Professionals</option>
-                            <option value="customers">Customers</option>
-                            <option value="requests">Service Requests</option>
-                        </select>
-                    </div>
+        <!-- Search Filters -->
+        <div class="glass-card p-4 mb-4 fade-in">
+            <div class="card-body">
+                <form method="GET" action="{{ url_for('admin_search') }}" id="searchForm">
+                    <div class="row g-3">
+                        <!-- Search Type -->
+                        <div class="col-md-3">
+                            <label class="form-label">Search Category</label>
+                            <select class="form-select" name="search_type" id="searchType">
+                                <option value="all">All</option>
+                                <option value="services">Services</option>
+                                <option value="professionals">Professionals</option>
+                                <option value="customers">Customers</option>
+                                <option value="requests">Service Requests</option>
+                            </select>
+                        </div>
 
-                    <!-- Keyword Search -->
-                    <div class="col-md-3">
-                        <label class="form-label">Keyword</label>
-                        <input type="text" class="form-control" name="keyword" placeholder="Search...">
-                    </div>
+                        <!-- Keyword Search -->
+                        <div class="col-md-3">
+                            <label class="form-label">Keyword</label>
+                            <input type="text" class="form-control" name="keyword" placeholder="Search...">
+                        </div>
 
-                    <!-- Date Range -->
-                    <div class="col-md-3">
-                        <label class="form-label">From Date</label>
-                        <input type="date" class="form-control" name="date_from">
-                    </div>
+                        <!-- Date Range -->
+                        <div class="col-md-3">
+                            <label class="form-label">From Date</label>
+                            <input type="date" class="form-control" name="date_from">
+                        </div>
 
-                    <div class="col-md-3">
-                        <label class="form-label">To Date</label>
-                        <input type="date" class="form-control" name="date_to">
-                    </div>
+                        <div class="col-md-3">
+                            <label class="form-label">To Date</label>
+                            <input type="date" class="form-control" name="date_to">
+                        </div>
 
-                    <!-- Additional Filters -->
-                    <div class="col-md-3">
-                        <label class="form-label">Status</label>
-                        <select class="form-select" name="status">
-                            <option value="">All</option>
-                            <option value="active">Active</option>
-                            <option value="pending">Pending</option>
-                            <option value="completed">Completed</option>
-                            <option value="blocked">Blocked</option>
-                        </select>
-                    </div>
+                        <!-- Additional Filters -->
+                        <div class="col-md-3">
+                            <label class="form-label">Status</label>
+                            <select class="form-select" name="status">
+                                <option value="">All</option>
+                                <option value="active">Active</option>
+                                <option value="pending">Pending</option>
+                                <option value="completed">Completed</option>
+                                <option value="blocked">Blocked</option>
+                            </select>
+                        </div>
 
-                    <div class="col-md-3">
-                        <label class="form-label">Rating</label>
-                        <select class="form-select" name="rating">
-                            <option value="">All</option>
-                            <option value="4">4+ Stars</option>
-                            <option value="3">3+ Stars</option>
-                            <option value="2">2+ Stars</option>
-                            <option value="1">1+ Stars</option>
-                        </select>
-                    </div>
+                        <div class="col-md-3">
+                            <label class="form-label">Rating</label>
+                            <select class="form-select" name="rating">
+                                <option value="">All</option>
+                                <option value="4">4+ Stars</option>
+                                <option value="3">3+ Stars</option>
+                                <option value="2">2+ Stars</option>
+                                <option value="1">1+ Stars</option>
+                            </select>
+                        </div>
 
-                    <div class="col-md-3">
-                        <label class="form-label">Sort By</label>
-                        <select class="form-select" name="sort_by">
-                            <option value="date_desc">Date (Newest)</option>
-                            <option value="date_asc">Date (Oldest)</option>
-                            <option value="name_asc">Name (A-Z)</option>
-                            <option value="name_desc">Name (Z-A)</option>
-                            <option value="rating_desc">Rating (High-Low)</option>
-                            <option value="rating_asc">Rating (Low-High)</option>
-                        </select>
-                    </div>
+                        <div class="col-md-3">
+                            <label class="form-label">Sort By</label>
+                            <select class="form-select" name="sort_by">
+                                <option value="date_desc">Date (Newest)</option>
+                                <option value="date_asc">Date (Oldest)</option>
+                                <option value="name_asc">Name (A-Z)</option>
+                                <option value="name_desc">Name (Z-A)</option>
+                                <option value="rating_desc">Rating (High-Low)</option>
+                                <option value="rating_asc">Rating (Low-High)</option>
+                            </select>
+                        </div>
 
-                    <div class="col-md-3 d-flex align-items-end">
-                        <button type="submit" class="btn btn-primary w-100">
-                            <i class="fas fa-search me-2"></i>Search
-                        </button>
+                        <div class="col-md-3 d-flex align-items-end">
+                            <button type="submit" class="btn btn-primary w-100">
+                                <i class="fas fa-search me-2"></i>Search
+                            </button>
+                        </div>
                     </div>
-                </div>
-            </form>
+                </form>
+            </div>
         </div>
-    </div>
 
-    <!-- Search Results -->
-    <div class="card">
-        <div class="card-header bg-light">
-            <h2 class="h4 mb-0">Search Results</h2>
-        </div>
-        <div class="card-body">
-            <!-- Dynamic Results Table -->
-            <div class="table-responsive" id="resultsTable">
-                {% if results %}
-                <table class="table table-hover">
-                    <thead class="table-light">
-                        <tr>
-                            <!-- Dynamic Headers based on search type -->
-                            {% if search_type == 'services' or search_type == 'all' %}
-                            <th>Service Name</th>
-                            <th>Price</th>
-                            <th>Description</th>
-                            <th>Actions</th>
-                            {% endif %}
+        <!-- Results Section -->
+        <div class="glass-card fade-in">
+            <div class="card-header bg-light">
+                <h2 class="h4 mb-0">Search Results</h2>
+            </div>
+            <div class="card-body">
+                <!-- Dynamic Results Table -->
+                <div class="table-responsive" id="resultsTable">
+                    {% if results %}
+                    <table class="table table-hover">
+                        <thead class="table-light">
+                            <tr>
+                                <!-- Dynamic Headers based on search type -->
+                                {% if search_type == 'services' or search_type == 'all' %}
+                                <th>Service Name</th>
+                                <th>Price</th>
+                                <th>Description</th>
+                                <th>Actions</th>
+                                {% endif %}
 
-                            {% if search_type == 'professionals' or search_type == 'all' %}
-                            <th>Name</th>
-                            <th>Service Type</th>
-                            <th>Rating</th>
-                            <th>Status</th>
-                            <th>Actions</th>
-                            {% endif %}
+                                {% if search_type == 'professionals' or search_type == 'all' %}
+                                <th>Name</th>
+                                <th>Service Type</th>
+                                <th>Rating</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                                {% endif %}
 
-                            {% if search_type == 'customers' or search_type == 'all' %}
-                            <th>Name</th>
-                            <th>Email</th>
-                            <th>Status</th>
-                            <th>Actions</th>
-                            {% endif %}
+                                {% if search_type == 'customers' or search_type == 'all' %}
+                                <th>Name</th>
+                                <th>Email</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                                {% endif %}
 
-                            {% if search_type == 'requests' or search_type == 'all' %}
-                            <th>Service</th>
-                            <th>Customer</th>
-                            <th>Professional</th>
-                            <th>Status</th>
-                            <th>Date</th>
-                            <th>Actions</th>
-                            {% endif %}
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for result in results %}
-                        <tr>
-                            <!-- Dynamic row data based on result type -->
-                            {% if result.__tablename__ == 'services' %}
-                            <td>{{ result.service_name }}</td>
-                            <td>₹{{ result.price }}</td>
-                            <td>{{ result.description }}</td>
-                            <td>
-                                <div class="btn-group">
-                                    <a href="{{ url_for('show_service', id=result.id) }}" class="btn btn-info btn-sm">
-                                        <i class="fas fa-eye"></i>
-                                    </a>
-                                    <a href="{{ url_for('edit_service', id=result.id) }}" class="btn btn-warning btn-sm">
-                                        <i class="fas fa-edit"></i>
-                                    </a>
-                                </div>
-                            </td>
-                            {% endif %}
+                                {% if search_type == 'requests' or search_type == 'all' %}
+                                <th>Service</th>
+                                <th>Customer</th>
+                                <th>Professional</th>
+                                <th>Status</th>
+                                <th>Date</th>
+                                <th>Actions</th>
+                                {% endif %}
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for result in results %}
+                            <tr>
+                                <!-- Dynamic row data based on result type -->
+                                {% if result.__tablename__ == 'services' %}
+                                <td>{{ result.service_name }}</td>
+                                <td>₹{{ result.price }}</td>
+                                <td>{{ result.description }}</td>
+                                <td>
+                                    <div class="btn-group">
+                                        <a href="{{ url_for('show_service', id=result.id) }}"
+                                            class="btn btn-info btn-sm">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                        <a href="{{ url_for('edit_service', id=result.id) }}"
+                                            class="btn btn-warning btn-sm">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                    </div>
+                                </td>
+                                {% endif %}
 
-                            {% if result.__tablename__ == 'user' and result.is_provider %}
-                            <td>{{ result.name }}</td>
-                            <td>{{ result.service_type }}</td>
-                            <td>
-                                <span class="text-warning">
-                                    <i class="fas fa-star"></i> {{ "%.1f"|format(result.avg_rating) }}
-                                </span>
-                            </td>
-                            <td>
-                                <span class="badge {{ 'bg-success' if result.is_verified else 'bg-warning' }}">
-                                    {{ 'Verified' if result.is_verified else 'Pending' }}
-                                </span>
-                            </td>
-                            <td>
-                                <div class="btn-group">
-                                    <a href="{{ url_for('toggle_block', user_id=result.id) }}" 
-                                       class="btn {{ 'btn-danger' if not result.is_blocked else 'btn-success' }} btn-sm">
+                                {% if result.__tablename__ == 'user' and result.is_provider %}
+                                <td>{{ result.name }}</td>
+                                <td>{{ result.service_type }}</td>
+                                <td>
+                                    <span class="text-warning">
+                                        <i class="fas fa-star"></i> {{ "%.1f"|format(result.avg_rating) }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <span class="badge {{ 'bg-success' if result.is_verified else 'bg-warning' }}">
+                                        {{ 'Verified' if result.is_verified else 'Pending' }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <div class="btn-group">
+                                        <a href="{{ url_for('toggle_block', user_id=result.id) }}"
+                                            class="btn {{ 'btn-danger' if not result.is_blocked else 'btn-success' }} btn-sm">
+                                            {{ 'Block' if not result.is_blocked else 'Unblock' }}
+                                        </a>
+                                    </div>
+                                </td>
+                                {% endif %}
+
+                                {% if result.__tablename__ == 'user' and result.is_client %}
+                                <td>{{ result.name }}</td>
+                                <td>{{ result.username }}</td>
+                                <td>
+                                    <span class="badge {{ 'bg-danger' if result.is_blocked else 'bg-success' }}">
+                                        {{ 'Blocked' if result.is_blocked else 'Active' }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <a href="{{ url_for('toggle_block', user_id=result.id) }}"
+                                        class="btn {{ 'btn-warning' if not result.is_blocked else 'btn-success' }} btn-sm">
                                         {{ 'Block' if not result.is_blocked else 'Unblock' }}
                                     </a>
-                                </div>
-                            </td>
-                            {% endif %}
+                                </td>
+                                {% endif %}
 
-                            {% if result.__tablename__ == 'user' and result.is_client %}
-                            <td>{{ result.name }}</td>
-                            <td>{{ result.username }}</td>
-                            <td>
-                                <span class="badge {{ 'bg-danger' if result.is_blocked else 'bg-success' }}">
-                                    {{ 'Blocked' if result.is_blocked else 'Active' }}
-                                </span>
-                            </td>
-                            <td>
-                                <a href="{{ url_for('toggle_block', user_id=result.id) }}" 
-                                   class="btn {{ 'btn-warning' if not result.is_blocked else 'btn-success' }} btn-sm">
-                                    {{ 'Block' if not result.is_blocked else 'Unblock' }}
-                                </a>
-                            </td>
-                            {% endif %}
-
-                            {% if result.__tablename__ == 'serviceRequest' %}
-                            <td>{{ result.service.service_name }}</td>
-                            <td>{{ result.client.name }}</td>
-                            <td>{{ result.provider.name if result.provider else 'Unassigned' }}</td>
-                            <td>
-                                <span class="badge {{ 'bg-success' if result.status == 'Completed' 
-                                                    else 'bg-warning' if result.status == 'Pending'
-                                                    else 'bg-primary' }}">
-                                    {{ result.status }}
-                                </span>
-                            </td>
-                            <td>{{ result.date_created.strftime('%Y-%m-%d') }}</td>
-                            <td>
-                                <a href="{{ url_for('show_request', id=result.id) }}" class="btn btn-info btn-sm">
-                                    <i class="fas fa-eye"></i>
-                                </a>
-                            </td>
-                            {% endif %}
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-                {% else %}
-                <p class="text-center text-muted my-5">No results found</p>
-                {% endif %}
+                                {% if result.__tablename__ == 'serviceRequest' %}
+                                <td>{{ result.service.service_name }}</td>
+                                <td>{{ result.client.name }}</td>
+                                <td>{{ result.provider.name if result.provider else 'Unassigned' }}</td>
+                                <td>
+                                    <span class="badge {{ 'bg-success' if result.status == 'Completed' 
+                                                        else 'bg-warning' if result.status == 'Pending'
+                                                        else 'bg-primary' }}">
+                                        {{ result.status }}
+                                    </span>
+                                </td>
+                                <td>{{ result.date_created.strftime('%Y-%m-%d') }}</td>
+                                <td>
+                                    <a href="{{ url_for('show_request', id=result.id) }}" class="btn btn-info btn-sm">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                </td>
+                                {% endif %}
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                    {% else %}
+                    <p class="text-center text-muted my-5">No results found</p>
+                    {% endif %}
+                </div>
             </div>
         </div>
     </div>
 </div>
-
-{% block script %}
-<!-- <script>
-// Dynamic form handling
-document.getElementById('searchType').addEventListener('change', function() {
-    const searchType = this.value;
-    const form = document.getElementById('searchForm');
-    
-    // Update form fields based on search type
-    // You can show/hide specific fields based on the selected search type
-});
-
-</script> -->
 {% endblock %}
 
+{% block script %}
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const searchForm = document.getElementById('searchForm');
+        const resultsTable = document.getElementById('resultsTable');
+
+        // Handle form submission
+        searchForm.addEventListener('submit', function (e) {
+            const submitBtn = this.querySelector('button[type="submit"]');
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Searching...';
+            submitBtn.disabled = true;
+            resultsTable.classList.add('loading');
+        });
+
+        // Handle search type changes
+        document.getElementById('searchType').addEventListener('change', function () {
+            const type = this.value;
+            const filters = document.querySelectorAll('[data-filter]');
+
+            filters.forEach(filter => {
+                const filterTypes = filter.dataset.filter.split(',');
+                filter.closest('.col-md-3').style.display =
+                    filterTypes.includes(type) || type === 'all' ? 'block' : 'none';
+            });
+        });
+    });
+</script>
 {% endblock %}
