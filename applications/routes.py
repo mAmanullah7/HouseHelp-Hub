@@ -372,8 +372,8 @@ def add_service_post():
 
 
 @app.route('/services/<int:id>/')
-# @admin_required
-@auth_required
+@admin_required
+# @auth_required
 def show_service(id):
     service = Service.query.get(id)
     return render_template('Services/show.html', service=service)
@@ -1066,7 +1066,6 @@ def customer_search():
 
 # ----------------------- SUmmary ----------------------------
 
-# routes.py
 @app.route('/admin/summary')
 @admin_required
 def admin_summary():
@@ -1107,39 +1106,126 @@ def admin_summary():
                          service_stats=service_stats)
 
 
-# routes.py
 @app.route('/professional/summary')
 @auth_required
 def professional_summary():
-    # Get personal statistics
-    # current_user = User.query.get(session['User_id'])
-    # total_requests = ServiceRequest.query.filter_by(provider_id=current_user.id).count()
-    # completed_requests = ServiceRequest.query.filter_by(
-    #     provider_id=current_user.id, 
-    #     status='Completed'
-    # ).count()
-    # active_requests = ServiceRequest.query.filter_by(
-    #     provider_id=current_user.id, 
-    #     status='In Progress'
-    # ).count()
+    current_user = User.query.get(session['User_id'])
     
-    # # Calculate completion rate
-    # completion_rate = (completed_requests / total_requests * 100) if total_requests > 0 else 0
+    # Basic stats with explicit status checks
+    total_requests = ServiceRequest.query.filter_by(provider_id=current_user.id).count()
+    completed_requests = ServiceRequest.query.filter_by(
+        provider_id=current_user.id, 
+        status='Completed'
+    ).count()
+    active_requests = ServiceRequest.query.filter_by(
+        provider_id=current_user.id, 
+        status='Assigned'
+    ).count()
+    pending_requests = ServiceRequest.query.filter_by(
+        provider_id=current_user.id, 
+        status='Pending'
+    ).count()
+
+    rejected_requests = ServiceRequest.query.filter_by(
+        provider_id=current_user.id,
+        status='Rejected'
+    )
     
-    # # Get monthly request counts
-    # monthly_stats = db.session.query(
-    #     db.func.strftime('%Y-%m', ServiceRequest.date_created).label('month'),
-    #     db.func.count(ServiceRequest.id).label('count')
-    # ).filter_by(provider_id=current_user.id)\
-    #  .group_by('month')\
-    #  .order_by('month')\
-    #  .limit(6).all()
+    # Calculate completion rate
+    completion_rate = (completed_requests / total_requests * 100) if total_requests > 0 else 0
     
-    return render_template('Professionals/summary.html')
+    # Get weekly stats using SQLite strftime
+    weekly_stats = db.session.query(
+        db.func.strftime('%W', ServiceRequest.date_created).label('week'),
+        db.func.count(ServiceRequest.id).label('count')
+    ).filter(
+        ServiceRequest.provider_id == current_user.id,
+        ServiceRequest.date_created >= db.func.datetime('now', '-8 weeks')
+    ).group_by('week')\
+     .order_by('week')\
+     .all()
+    
+    # Format weeks for better display
+    formatted_weekly_stats = [
+        {'week': f"Week {stat.week}", 'count': stat.count}
+        for stat in weekly_stats
+    ]
+    
+    # Recent reviews with rating
+    recent_reviews = ServiceRequest.query.filter(
+        ServiceRequest.provider_id == current_user.id,
+        ServiceRequest.rating_by_client > 0
+    ).order_by(ServiceRequest.date_closed.desc())\
+     .limit(5).all()
+    
+    return render_template('Professionals/summary.html',
+                         total_requests=total_requests,
+                         completed_requests=completed_requests,
+                         active_requests=active_requests,
+                         pending_requests=pending_requests,
+                         completion_rate=completion_rate,
+                         weekly_stats=formatted_weekly_stats,
+                         recent_reviews=recent_reviews,
+                         avg_rating=current_user.avg_rating,
+                         rejected_requests=rejected_requests)
+
 
 @app.route('/customer/summary')
 @auth_required
 def customer_summary():
+    current_user = User.query.get(session['User_id'])
     
-    return render_template('customer/summary.html')
-                         
+    # Basic request statistics
+    total_requests = ServiceRequest.query.filter_by(client_id=current_user.id).count()
+    pending_requests = ServiceRequest.query.filter_by(
+        client_id=current_user.id,
+        status='Pending'
+    ).count()
+    active_requests = ServiceRequest.query.filter_by(
+        client_id=current_user.id,
+        status='In Progress'
+    ).count()
+    completed_requests = ServiceRequest.query.filter_by(
+        client_id=current_user.id,
+        status='Completed'
+    ).count()
+
+    # Get most used services
+    service_usage = db.session.query(
+        Service.service_name,
+        db.func.count(ServiceRequest.id).label('usage_count')
+    ).join(ServiceRequest)\
+     .filter(ServiceRequest.client_id == current_user.id)\
+     .group_by(Service.service_name)\
+     .order_by(db.desc('usage_count'))\
+     .limit(5).all()
+
+    # Recent service requests
+    recent_requests = ServiceRequest.query.filter_by(client_id=current_user.id)\
+        .order_by(ServiceRequest.date_created.desc())\
+        .limit(5).all()
+
+    # Get weekly request stats
+    weekly_stats = db.session.query(
+        db.func.strftime('%W', ServiceRequest.date_created).label('week'),
+        db.func.count(ServiceRequest.id).label('count')
+    ).filter(
+        ServiceRequest.client_id == current_user.id,
+        ServiceRequest.date_created >= db.func.datetime('now', '-8 weeks')
+    ).group_by('week')\
+     .order_by('week')\
+     .all()
+
+    formatted_weekly_stats = [
+        {'week': f"Week {stat.week}", 'count': stat.count}
+        for stat in weekly_stats
+    ]
+
+    return render_template('customer/summary.html',
+                         total_requests=total_requests,
+                         pending_requests=pending_requests,
+                         active_requests=active_requests, 
+                         completed_requests=completed_requests,
+                         service_usage=service_usage,
+                         recent_requests=recent_requests,
+                         weekly_stats=formatted_weekly_stats)
