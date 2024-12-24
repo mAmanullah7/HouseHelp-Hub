@@ -1,18 +1,148 @@
 {% extends 'layout.html' %}
 
-{% block title %} Customer Summary {% endblock %}
+{% block title %}Customer Dashboard{% endblock %}
+
+{% block style %}
+<style>
+    .dashboard-container {
+        background: linear-gradient(rgba(29, 38, 113, 0.8), rgba(195, 55, 100, 0.8)),
+            url('https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&q=80');
+        background-size: cover;
+        background-attachment: fixed;
+        min-height: 100vh;
+        padding: 2rem;
+    }
+
+    .glass-card {
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
+        border-radius: 15px;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    }
+
+    .stat-card {
+        background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.05));
+        backdrop-filter: blur(10px);
+        border-radius: 15px;
+        padding: 1.5rem;
+        transition: transform 0.3s ease;
+    }
+</style>
+{% endblock %}
 
 {% block content %}
-<div class="container py-5">
-    <div class="card shadow-sm">
-        <div class="card-body text-center py-5">
-            <i class="fas fa-chart-line fa-4x text-muted mb-4"></i>
-            <h2 class="display-4">Summary Coming Soon</h2>
-            <p class="lead text-muted">We're working on adding detailed performance metrics and analytics for Customer.</p>
-            <a href="{{ url_for('professional_dashboard') }}" class="btn btn-primary mt-3">
-                <i class="fas fa-arrow-left me-2"></i>Back to Dashboard
-            </a>
+<div class="dashboard-container">
+    <h1 class="display-4 mb-4 text-white">My Services Dashboard</h1>
+
+    <!-- Stats Cards -->
+    <div class="row g-4 mb-5">
+        <div class="col-md-3">
+            <div class="stat-card text-white" style="background: linear-gradient(135deg, #6a11cb, #2575fc);">
+                <h5 class="card-title">Total Requests</h5>
+                <h2 class="card-text animate-count">{{ total_requests }}</h2>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-card text-white" style="background: linear-gradient(135deg, #11998e, #38ef7d);">
+                <h5 class="card-title">Active Services</h5>
+                <h2 class="card-text animate-count">{{ active_requests }}</h2>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-card text-white" style="background: linear-gradient(135deg, #fc4a1a, #f7b733);">
+                <h5 class="card-title">Completed</h5>
+                <h2 class="card-text animate-count">{{ completed_requests }}</h2>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-card text-white" style="background: linear-gradient(135deg, #ee0979, #ff6a00);">
+                <h5 class="card-title">Pending</h5>
+                <h2 class="card-text animate-count">{{ pending_requests }}</h2>
+            </div>
+        </div>
+    </div>
+
+    <!-- Charts -->
+    <div class="row g-4 mb-5">
+        <div class="col-md-6">
+            <div class="glass-card p-4">
+                <h5 class="card-title">Service Usage</h5>
+                <div class="chart-container">
+                    <canvas id="serviceUsageChart"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="glass-card p-4">
+                <h5 class="card-title">Weekly Activity</h5>
+                <div class="chart-container">
+                    <canvas id="weeklyActivityChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Requests Table -->
+    <div class="glass-card">
+        <div class="table-responsive">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Service</th>
+                        <th>Provider</th>
+                        <th>Status</th>
+                        <th>Date</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for request in recent_requests %}
+                    <tr>
+                        <td>{{ request.service.service_name }}</td>
+                        <td>{{ request.provider.name if request.provider else 'Unassigned' }}</td>
+                        <td><span class="badge bg-{% if request.status == 'PENDING' %}warning{% elif request.status == 'COMPLETED' %}success{% elif request.status == 'ACTIVE' %}primary{% else %}secondary{% endif %}">{{ request.status }}</span></td>
+                        <td>{{ request.date_created.strftime('%Y-%m-%d') }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
         </div>
     </div>
 </div>
+{% endblock %}
+
+{% block script %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    // Service Usage Chart
+    new Chart(
+        document.getElementById('serviceUsageChart').getContext('2d'),
+        {
+            type: 'pie',
+            data: {
+                labels: {{ service_usage|map(attribute='service_name')|list|tojson }},
+                datasets: [{
+                    data: {{ service_usage|map(attribute='usage_count')|list|tojson }},
+                    backgroundColor: ['#6a11cb', '#11998e', '#fc4a1a', '#ee0979', '#2575fc']
+                }]
+            }
+        }
+    );
+
+    // Weekly Activity Chart
+    new Chart(
+        document.getElementById('weeklyActivityChart').getContext('2d'),
+        {
+            type: 'line',
+            data: {
+                labels: {{ weekly_stats|map(attribute='week')|list|tojson }},
+                datasets: [{
+                    label: 'Requests',
+                    data: {{ weekly_stats|map(attribute='count')|list|tojson }},
+                    borderColor: '#6a11cb',
+                    tension: 0.4
+                }]
+            }
+        }
+    );
+</script>
 {% endblock %}

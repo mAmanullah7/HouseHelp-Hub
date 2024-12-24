@@ -1,18 +1,273 @@
 {% extends 'layout.html' %}
 
 {% block title %}Professional Summary{% endblock %}
+{% block style %}
+<style>
+    /* Main Container */
+    .dashboard-container {
+        background: linear-gradient(rgba(29, 38, 113, 0.8), rgba(195, 55, 100, 0.8)),
+            url('https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&q=80');
+        background-size: cover;
+        background-attachment: fixed;
+        min-height: 100vh;
+        padding: 2rem;
+    }
+
+    /* Glass Card Effect */
+    .glass-card {
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
+        border-radius: 15px;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        transition: all 0.3s ease;
+    }
+
+    /* Stat Cards */
+    .stat-card {
+        background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.05));
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 15px;
+        padding: 1.5rem;
+        transition: all 0.3s ease;
+    }
+
+    .stat-card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
+    }
+
+    .stat-card .card-title {
+        font-size: 1.1rem;
+        opacity: 0.9;
+    }
+
+    .stat-card .card-text {
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin: 1rem 0 0;
+    }
+
+    /* Chart Containers */
+    .chart-container {
+        position: relative;
+        height: 300px;
+        padding: 1rem;
+    }
+
+    .chart-card {
+        background: rgba(255, 255, 255, 0.95);
+        border-radius: 15px;
+        margin-bottom: 2rem;
+    }
+
+    .chart-card .card-title {
+        color: #1d2671;
+        font-weight: 600;
+        padding: 1rem;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+    }
+
+    /* Table Styling */
+    .table-card {
+        background: rgba(255, 255, 255, 0.95);
+        border-radius: 15px;
+        overflow: hidden;
+    }
+
+    .table {
+        margin: 0;
+    }
+
+    .table th {
+        background: linear-gradient(135deg, #1d2671, #c33764);
+        color: white;
+        border: none;
+        padding: 1rem;
+    }
+
+    .table td {
+        padding: 1rem;
+        vertical-align: middle;
+    }
+
+    /* Badges */
+    .badge {
+        padding: 0.6rem 1rem;
+        border-radius: 20px;
+        font-weight: 500;
+    }
+
+    .badge-verified {
+        background: linear-gradient(135deg, #00b09b, #96c93d);
+    }
+
+    .badge-pending {
+        background: linear-gradient(135deg, #f6d365, #fda085);
+    }
+
+    /* Animations */
+    @keyframes countUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .animate-count {
+        animation: countUp 0.5s ease forwards;
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+        .dashboard-container {
+            padding: 1rem;
+        }
+
+        .stat-card {
+            margin-bottom: 1rem;
+        }
+
+        .chart-container {
+            height: 250px;
+        }
+    }
+</style>
+{% endblock %}
 
 {% block content %}
-<div class="container py-5">
-    <div class="card shadow-sm">
-        <div class="card-body text-center py-5">
-            <i class="fas fa-chart-line fa-4x text-muted mb-4"></i>
-            <h2 class="display-4">Summary Coming Soon</h2>
-            <p class="lead text-muted">We're working on adding detailed performance metrics and analytics for professionals.</p>
-            <a href="{{ url_for('professional_dashboard') }}" class="btn btn-primary mt-3">
-                <i class="fas fa-arrow-left me-2"></i>Back to Dashboard
-            </a>
+<div class="dashboard-container">
+    <h1 class="display-4 mb-4 text-white">Professional Dashboard</h1>
+
+    <!-- Statistics Cards -->
+    <div class="row g-4 mb-5">
+        <div class="col-md-3">
+            <div class="stat-card text-white" style="background: linear-gradient(135deg, #6a11cb, #2575fc);">
+                <h5 class="card-title">Total Requests</h5>
+                <h2 class="card-text animate-count">{{ total_requests }}</h2>
+                <i class="fas fa-clipboard-list position-absolute top-0 end-0 m-3 fa-2x opacity-50"></i>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-card text-white" style="background: linear-gradient(135deg, #11998e, #38ef7d);">
+                <h5 class="card-title">Completion Rate</h5>
+                <h2 class="card-text animate-count">{{ "%.1f"|format(completion_rate) }}%</h2>
+                <i class="fas fa-chart-line position-absolute top-0 end-0 m-3 fa-2x opacity-50"></i>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-card text-white" style="background: linear-gradient(135deg, #fc4a1a, #f7b733);">
+                <h5 class="card-title">Average Rating</h5>
+                <h2 class="card-text animate-count">{{ "%.1f"|format(avg_rating) }}</h2>
+                <i class="fas fa-star position-absolute top-0 end-0 m-3 fa-2x opacity-50"></i>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-card text-white" style="background: linear-gradient(135deg, #ee0979, #ff6a00);">
+                <h5 class="card-title">Active Requests</h5>
+                <h2 class="card-text animate-count">{{ active_requests }}</h2>
+                <i class="fas fa-clock position-absolute top-0 end-0 m-3 fa-2x opacity-50"></i>
+            </div>
+        </div>
+    </div>
+
+    <!-- Charts Row -->
+    <div class="row g-4 mb-5">
+        <div class="col-md-6">
+            <div class="chart-card glass-card">
+                <h5 class="card-title">Request Status Distribution</h5>
+                <div class="chart-container">
+                    <canvas id="requestsChart"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="chart-card glass-card">
+                <h5 class="card-title">Weekly Request Trends</h5>
+                <div class="chart-container">
+                    <canvas id="weeklyChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Reviews Table -->
+    <div class="table-card glass-card">
+        <h5 class="card-title p-3">Recent Reviews</h5>
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead>
+                    <tr>
+                        <th>Client</th>
+                        <th>Service</th>
+                        <th>Rating</th>
+                        <th>Review</th>
+                        <th>Date</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for review in recent_reviews %}
+                    <tr>
+                        <td>{{ review.client.name }}</td>
+                        <td>{{ review.service.service_name }}</td>
+                        <td>
+                            <div class="text-warning">
+                                {% for i in range(review.rating_by_client|round|int) %}⭐{% endfor %}
+                            </div>
+                        </td>
+                        <td>{{ review.review_by_client }}</td>
+                        <td>{{ review.date_closed.strftime('%Y-%m-%d') }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
         </div>
     </div>
 </div>
+{% endblock %}
+
+{% block script %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    // Charts configuration similar to admin dashboard
+    const requestsChart = new Chart(
+        document.getElementById('requestsChart').getContext('2d'),
+        {
+            type: 'doughnut',
+            data: {
+                labels: ['Pending', 'Active', 'Completed'],
+                datasets: [{
+                    data: [{{ pending_requests }}, {{ active_requests }}, {{ completed_requests }}],
+                    backgroundColor: [
+                        'rgba(255, 193, 7, 0.8)',
+                        'rgba(13, 202, 240, 0.8)',
+                        'rgba(25, 135, 84, 0.8)'
+                    ]
+                }]
+            }
+        }
+    );
+
+    const weeklyChart = new Chart(
+        document.getElementById('weeklyChart').getContext('2d'),
+        {
+            type: 'line',
+            data: {
+                labels: {{ weekly_stats|map(attribute='week')|list|tojson }},
+                datasets: [{
+                    label: 'Weekly Requests',
+                    data: {{ weekly_stats|map(attribute='count')|list|tojson }},
+                    borderColor: 'rgba(13, 110, 253, 0.8)',
+                    tension: 0.4
+                }]
+            }
+        }
+    );
+</script>
 {% endblock %}

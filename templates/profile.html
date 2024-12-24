@@ -1,53 +1,186 @@
 {% extends 'layout.html' %}
 
-{% block title %}Profile page{% endblock %}
+{% block title %}Profile Settings{% endblock %}
+
+{% block style %}
+<style>
+    :root {
+        --primary-gradient: linear-gradient(135deg, #1d2671, #c33764);
+        --glass-bg: rgba(255, 255, 255, 0.95);
+    }
+
+    .profile-page {
+        background: linear-gradient(rgba(29, 38, 113, 0.8), rgba(195, 55, 100, 0.8)),
+                    url('https://images.unsplash.com/photo-1432821596592-e2c18b78144f?auto=format&fit=crop&q=80');
+        background-size: cover;
+        background-attachment: fixed;
+        min-height: 100vh;
+        padding: 3rem 1rem;
+    }
+
+    .glass-card {
+        background: var(--glass-bg);
+        backdrop-filter: blur(10px);
+        border-radius: 20px;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+        animation: slideIn 0.5s ease;
+    }
+
+    .profile-header {
+        background: var(--primary-gradient);
+        padding: 3rem 2rem;
+        text-align: center;
+        color: white;
+    }
+
+    .avatar-container {
+        position: relative;
+        width: 150px;
+        height: 150px;
+        margin: 0 auto 2rem;
+    }
+
+    .avatar {
+        width: 100%;
+        height: 100%;
+        border-radius: 50%;
+        border: 4px solid white;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+        transition: all 0.3s ease;
+    }
+
+    .avatar:hover {
+        transform: scale(1.1) rotate(5deg);
+        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
+    }
+
+    .profile-name {
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin: 1rem 0;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+    }
+
+    .form-section {
+        padding: 2rem;
+    }
+
+    .form-floating {
+        margin-bottom: 1.5rem;
+    }
+
+    .form-floating > .form-control {
+        border-radius: 15px;
+        border: 2px solid #eef2f7;
+        padding: 1rem;
+        height: calc(3.5rem + 2px);
+        transition: all 0.3s ease;
+    }
+
+    .form-floating > .form-control:focus {
+        border-color: #1d2671;
+        box-shadow: 0 0 0 0.25rem rgba(29, 38, 113, 0.25);
+    }
+
+    .form-floating > label {
+        padding: 1rem;
+        color: #6c757d;
+        font-weight: 500;
+    }
+
+    .btn-custom {
+        padding: 0.8rem 1.5rem;
+        border-radius: 10px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+
+    .btn-update {
+        background: var(--primary-gradient);
+        border: none;
+        color: white;
+    }
+
+    .btn-logout {
+        background: transparent;
+        border: 2px solid #dc3545;
+        color: #dc3545;
+    }
+
+    .btn-custom:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    }
+
+    .password-strength {
+        height: 4px;
+        border-radius: 2px;
+        margin-top: 0.5rem;
+        transition: all 0.3s ease;
+    }
+
+    @keyframes slideIn {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    @media (max-width: 768px) {
+        .profile-page {
+            padding: 1rem;
+        }
+        .profile-name {
+            font-size: 2rem;
+        }
+    }
+</style>
+{% endblock %}
 
 {% block content %}
-<div class="container py-5">
-    <div class="row">
-        <div class="col-lg-8 mx-auto">
-            <div class="card shadow-lg">
-                <div class="card-body text-center py-5">
-                    <!-- Profile Header -->
-                    <div class="profile-header mb-4">
-                        <div class="profile-pic mb-4">
+<div class="profile-page">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 mx-auto">
+                <div class="glass-card">
+                    <div class="profile-header">
+                        <div class="avatar-container">
                             <img src="https://api.dicebear.com/9.x/lorelei/svg?seed={{user.username}}" 
-                                 class="rounded-circle border shadow-sm" 
-                                 width="150" 
-                                 alt="profile picture">
+                                 class="avatar" 
+                                 alt="Profile Picture">
                         </div>
-                        <h1 class="display-4 fw-bold"> 
-                            Hello
-                            <span class="text-primary">@{{user.name}}</span>
+                        <h1 class="profile-name">
+                            Welcome back, {{user.name}}!
                         </h1>
+                        <p class="text-light mb-0">@{{user.username}}</p>
                     </div>
 
-                    <!-- Profile Update Form -->
-                    <div class="card-text">
-                        <form action="" method="post" class="text-start">
+                    <div class="form-section">
+                        <form action="" method="post" class="needs-validation" novalidate>
                             <div class="row g-4">
                                 <div class="col-md-6">
-                                    <div class="form-floating mb-3">
+                                    <div class="form-floating">
                                         <input type="email" 
                                                name="email" 
                                                id="email" 
                                                value="{{user.username}}"
                                                class="form-control" 
                                                required>
-                                        <label for="email">
-                                            <i class="fas fa-user me-2"></i>Username
+                                        <label>
+                                            <i class="fas fa-envelope me-2"></i>Email Address
                                         </label>
                                     </div>
                                 </div>
                                 <div class="col-md-6">
-                                    <div class="form-floating mb-3">
+                                    <div class="form-floating">
                                         <input type="text" 
                                                name="name" 
                                                id="name" 
                                                value="{{user.name}}" 
-                                               class="form-control">
-                                        <label for="name">
-                                            <i class="fas fa-id-card me-2"></i>Full Name
+                                               class="form-control" 
+                                               required>
+                                        <label>
+                                            <i class="fas fa-user me-2"></i>Full Name
                                         </label>
                                     </div>
                                 </div>
@@ -55,37 +188,38 @@
 
                             <div class="row g-4">
                                 <div class="col-md-6">
-                                    <div class="form-floating mb-3">
+                                    <div class="form-floating">
                                         <input type="password" 
                                                name="currentpassword" 
                                                id="currentpassword" 
                                                class="form-control" 
                                                required>
-                                        <label for="currentpassword">
+                                        <label>
                                             <i class="fas fa-lock me-2"></i>Current Password
                                         </label>
                                     </div>
                                 </div>
                                 <div class="col-md-6">
-                                    <div class="form-floating mb-3">
+                                    <div class="form-floating">
                                         <input type="password" 
                                                name="newpassword" 
                                                id="newpassword" 
                                                class="form-control" 
                                                required>
-                                        <label for="newpassword">
+                                        <label>
                                             <i class="fas fa-key me-2"></i>New Password
                                         </label>
+                                        <div class="password-strength" id="passwordStrength"></div>
                                     </div>
                                 </div>
                             </div>
 
-                            <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4">
-                                <a href="{{url_for('logout')}}" class="btn btn-danger me-md-2">
+                            <div class="d-flex justify-content-end gap-3 mt-4">
+                                <a href="{{url_for('logout')}}" class="btn btn-custom btn-logout">
                                     <i class="fas fa-sign-out-alt me-2"></i>Logout
                                 </a>
-                                <button type="submit" class="btn btn-primary">
-                                    <i class="fas fa-save me-2"></i>Update Profile
+                                <button type="submit" class="btn btn-custom btn-update">
+                                    <i class="fas fa-save me-2"></i>Save Changes
                                 </button>
                             </div>
                         </form>
@@ -96,27 +230,43 @@
     </div>
 </div>
 
-<!-- Add this in the head section of layout.html -->
-<style>
-    .profile-pic img {
-        transition: transform 0.3s ease;
-    }
-    .profile-pic img:hover {
-        transform: scale(1.1);
-    }
-    .card {
-        border-radius: 15px;
-        background: linear-gradient(145deg, #ffffff, #f6f9fc);
-    }
-    .form-floating > label {
-        color: #6c757d;
-    }
-    .form-control:focus {
-        border-color: #0d6efd;
-        box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
-    }
-</style>
+{% block script %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.querySelector('.needs-validation');
+    const passwordInput = document.getElementById('newpassword');
+    const strengthIndicator = document.getElementById('passwordStrength');
 
-<!-- Add Font Awesome in the head section of layout.html -->
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    // Password strength indicator
+    passwordInput.addEventListener('input', function() {
+        const strength = calculatePasswordStrength(this.value);
+        updateStrengthIndicator(strength);
+    });
+
+    function calculatePasswordStrength(password) {
+        let strength = 0;
+        if(password.length >= 8) strength++;
+        if(/[A-Z]/.test(password)) strength++;
+        if(/[0-9]/.test(password)) strength++;
+        if(/[^A-Za-z0-9]/.test(password)) strength++;
+        return strength;
+    }
+
+    function updateStrengthIndicator(strength) {
+        const colors = ['#dc3545', '#ffc107', '#17a2b8', '#28a745'];
+        strengthIndicator.style.width = `${(strength/4) * 100}%`;
+        strengthIndicator.style.background = colors[strength-1] || '';
+    }
+
+    // Form validation
+    form.addEventListener('submit', function(event) {
+        if (!form.checkValidity()) {
+            event.preventDefault();
+            event.stopPropagation();
+        }
+        form.classList.add('was-validated');
+    });
+});
+</script>
+{% endblock %}
 {% endblock %}
