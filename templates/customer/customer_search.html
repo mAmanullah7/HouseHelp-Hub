@@ -2,9 +2,15 @@
 
 {% block title %}Search Services{% endblock %}
 
+{% block style %}
+<style>
+    
+</style>
+{% endblock %}
+
 {% block content %}
 <div class="container py-4">
-    <h1 class="display-4 mb-4">Search Services</h1>
+    <h1 class="display-4 mb-4 text-center">Search Services</h1>
 
     <!-- Search Filters -->
     <div class="card mb-4">
@@ -76,26 +82,28 @@
         {% for service in services %}
         {% if service.filtered_providers %}
         <div class="col">
-            <div class="card h-100 shadow-sm">
-                <div class="card-body">
+            <div class="card h-100">
+                <div class="card-body d-flex flex-column">
                     <h5 class="card-title">{{ service.service_name }}</h5>
                     <p class="card-text">{{ service.description }}</p>
-                    <p class="text-muted">Starting from ₹{{ service.price }}</p>
-                    <p class="text-success">{{ service.filtered_providers|length }} professionals available</p>
-                    <button class="btn btn-primary" data-bs-toggle="modal" 
-                            data-bs-target="#professionalsModal{{ service.id }}">
-                        View Professionals
-                    </button>
+                    <p class="text-muted mb-2">Starting from ₹{{ service.price }}</p>
+                    <p class="text-success mb-3">{{ service.filtered_providers|length }} professionals available</p>
+                    <div class="mt-auto">
+                        <button class="btn btn-primary w-100" data-bs-toggle="modal" 
+                                data-bs-target="#professionalsModal{{ service.id }}">
+                            View Professionals
+                        </button>
+                    </div>
                 </div>
             </div>
 
             <!-- Professionals Modal -->
-            <div class="modal fade" id="professionalsModal{{ service.id }}">
-                <div class="modal-dialog modal-lg">
+            <div class="modal fade" id="professionalsModal{{ service.id }}" tabindex="-1" aria-labelledby="professionalsModalLabel{{ service.id }}" aria-hidden="true">
+                <div class="modal-dialog modal-lg modal-dialog-centered">
                     <div class="modal-content">
                         <div class="modal-header">
-                            <h5 class="modal-title">Available Professionals - {{ service.service_name }}</h5>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                            <h5 class="modal-title" id="professionalsModalLabel{{ service.id }}">Available Professionals - {{ service.service_name }}</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
                         <div class="modal-body">
                             <div class="table-responsive">
@@ -145,12 +153,12 @@
 
             <!-- Booking Modal -->
             {% for provider in service.filtered_providers %}
-            <div class="modal fade" id="bookingModal{{ service.id }}_{{ provider.id }}">
-                <div class="modal-dialog">
+            <div class="modal fade" id="bookingModal{{ service.id }}_{{ provider.id }}" tabindex="-1" aria-labelledby="bookingModalLabel{{ service.id }}_{{ provider.id }}" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered">
                     <div class="modal-content">
                         <div class="modal-header">
-                            <h5 class="modal-title">Book Service</h5>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                            <h5 class="modal-title" id="bookingModalLabel{{ service.id }}_{{ provider.id }}">Book Service</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
                         <form action="{{ url_for('request_service', service_id=service.id) }}" method="POST">
                             <div class="modal-body">
@@ -161,8 +169,8 @@
                                               placeholder="Describe your service requirement" required></textarea>
                                 </div>
                                 <p class="text-muted">
-                                    Professional: {{ provider.name }}<br>
-                                    Base Price: ₹{{ service.price }}
+                                    <strong>Professional:</strong> {{ provider.name }}<br>
+                                    <strong>Base Price:</strong> ₹{{ service.price }}
                                 </p>
                             </div>
                             <div class="modal-footer">

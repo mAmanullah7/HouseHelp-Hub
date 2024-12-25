@@ -2,36 +2,287 @@
 
 {% block title %}Customer Dashboard{% endblock %}
 
+{% block style %}
+<style>
+    :root {
+        --dark-bg: #1a1a1a;
+        --card-bg: rgba(255, 255, 255, 0.1);
+        --text-light: #ffffff;
+        --text-muted: #a0a0a0;
+        --primary-gradient: linear-gradient(135deg, #00c6ff, #0072ff);
+        --success-gradient: linear-gradient(135deg, #00b09b, #96c93d);
+        --warning-gradient: linear-gradient(135deg, #f6d365, #fda085);
+        --danger-gradient: linear-gradient(135deg, #ff416c, #ff4b2b);
+    }
+
+    body {
+        background-color: var(--dark-bg);
+        color: var(--text-light);
+    }
+
+    .dashboard-container {
+        background: linear-gradient(rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0.9)),
+            url('https://images.unsplash.com/photo-1521737711867-e3b97375f902?auto=format&fit=crop&q=80');
+        background-size: cover;
+        background-attachment: fixed;
+        min-height: 100vh;
+        padding: 2rem;
+    }
+
+    .welcome-section {
+        background: linear-gradient(135deg, rgba(0, 198, 255, 0.1), rgba(0, 114, 255, 0.1));
+        padding: 3rem;
+        border-radius: 20px;
+        margin-bottom: 3rem;
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .stats-card {
+        background: var(--primary-gradient);
+        border-radius: 15px;
+        padding: 1.5rem;
+        margin-bottom: 1rem;
+        color: white;
+        text-align: center;
+    }
+
+    .service-card {
+        background: var(--card-bg);
+        border-radius: 15px;
+        overflow: hidden;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .service-card:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 12px 35px rgba(0, 0, 0, 0.2);
+    }
+
+    .service-card .card-body {
+        padding: 1.5rem;
+    }
+
+    .modal-dark {
+        background: var(--dark-bg);
+        border-radius: 20px;
+        color: var(--text-light);
+    }
+
+    .modal-dark .modal-header {
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        padding: 1.5rem;
+    }
+
+    .modal-dark .modal-footer {
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+        padding: 1.5rem;
+    }
+
+    .modal-content {
+        background: rgba(26, 26, 26, 0.98);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 20px;
+        color: white;
+    }
+
+    .form-control-dark {
+        background: rgba(255, 255, 255, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        color: var(--text-light);
+        border-radius: 10px;
+        padding: 0.8rem;
+    }
+
+    .form-control-dark:focus {
+        background: rgba(255, 255, 255, 0.15);
+        border-color: rgba(255, 255, 255, 0.2);
+        color: var(--text-light);
+        box-shadow: none;
+    }
+
+    .form-select-dark {
+        background-color: rgba(255, 255, 255, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        color: var(--text-light);
+        border-radius: 10px;
+        padding: 0.8rem;
+    }
+
+    .table-dark {
+        background: var(--card-bg);
+        border-radius: 15px;
+        border: none;
+        color: var(--text-light);
+    }
+
+    .table-dark thead th {
+        background: rgba(255, 255, 255, 0.1);
+        border: none;
+        color: var(--text-light);
+        padding: 1rem;
+    }
+
+    .table-dark tbody td {
+        color: var(--text-light);
+        padding: 1rem;
+        vertical-align: middle;
+    }
+
+    .table-dark tbody tr {
+        transition: background-color 0.3s ease, transform 0.3s ease;
+    }
+
+    .table-dark tbody tr:hover {
+        background: rgba(255, 255, 255, 0.1);
+        transform: translateY(-2px);
+    }
+
+    .badge {
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+        font-weight: 500;
+    }
+
+    .badge-gradient-success {
+        background: var(--success-gradient);
+        color: white;
+    }
+
+    .badge-gradient-warning {
+        background: var(--warning-gradient);
+        color: white;
+    }
+
+    .badge-gradient-danger {
+        background: var(--danger-gradient);
+        color: white;
+    }
+
+    .btn-custom {
+        border: none;
+        border-radius: 10px;
+        padding: 0.7rem 1.5rem;
+        color: white;
+        font-weight: 500;
+        transition: all 0.3s ease;
+    }
+
+    .btn-custom:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    }
+
+    .btn-gradient-primary {
+        background: var(--primary-gradient);
+    }
+
+    .btn-gradient-success {
+        background: var(--success-gradient);
+    }
+
+    .btn-gradient-warning {
+        background: var(--warning-gradient);
+    }
+
+    .btn-gradient-danger {
+        background: var(--danger-gradient);
+    }
+
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .animate-fade-in {
+        animation: fadeIn 0.5s ease forwards;
+    }
+
+    /* Responsive Enhancements */
+    @media (max-width: 768px) {
+        .dashboard-container {
+            padding: 1rem;
+        }
+
+        .welcome-section {
+            padding: 2rem;
+        }
+
+        .stats-card {
+            margin-bottom: 1rem;
+        }
+
+        .section-title {
+            font-size: 1.5rem;
+        }
+
+        .table-dark thead th,
+        .table-dark tbody td {
+            padding: 0.5rem;
+        }
+
+        .btn-custom {
+            padding: 0.6rem 1rem;
+        }
+    }
+
+    /* Accessibility Enhancements */
+    a, button {
+        outline: none;
+    }
+
+    a:focus, button:focus {
+        box-shadow: 0 0 0 3px rgba(0, 114, 255, 0.5);
+    }
+</style>
+{% endblock %}
+
 {% block content %}
-<div class="container py-4">
-    <!-- Welcome Section -->
-    <div class="row mb-4">
-        <div class="col">
-            <h1 class="display-4">Welcome, {{ user.name }}</h1>
-            <p class="lead text-muted">Book and manage your service requests</p>
+<div class="dashboard-container">
+    <section class="welcome-section animate-fade-in">
+        <!-- Welcome Section -->
+        <div class="row align-items-center">
+            <div class="col-md-8">
+                <h1 class="display-4 text-gradient mb-3">Welcome, {{ user.name }}</h1>
+                <p class="lead text-white">Manage your service requests and bookings in one place</p>
+            </div>
+            <div class="col-md-4">
+                <div class="stats-card">
+                    <h3 class="mb-0">{{ requests|length }}</h3>
+                    <p class="mb-0">Total Service Requests</p>
+                </div>
+            </div>
+            
         </div>
-    </div>
+    </section>
 
     <!-- Available Services Section -->
     <section class="mb-5">
-        <h2>Available Services</h2>
+        <h2 class="section-title">Available Services</h2>
         <div class="row row-cols-1 row-cols-md-3 g-4">
             {% for service in services %}
             <div class="col">
-                <div class="card h-100 shadow-sm">
+                <div class="service-card">
                     <div class="card-body">
                         <h5 class="card-title">{{ service.service_name }}</h5>
                         <p class="card-text">{{ service.description }}</p>
-                        <p class="text-muted">Starting from ₹{{ service.price }}</p>
-                        <button class="btn btn-primary" data-bs-toggle="modal" 
-                                data-bs-target="#professionalsModal{{ service.id }}">
+                        <p class="text">Starting from ₹{{ service.price }}</p>
+                        <button class="btn btn-gradient-primary" data-bs-toggle="modal"
+                            data-bs-target="#professionalsModal{{ service.id }}">
                             Book Service
                         </button>
                     </div>
                 </div>
 
                 <!-- Professionals Selection Modal -->
-                <div class="modal fade" id="professionalsModal{{ service.id }}">
+                <div class="modal fade modal-dark" id="professionalsModal{{ service.id }}">
                     <div class="modal-dialog modal-lg">
                         <div class="modal-content">
                             <div class="modal-header">
@@ -40,7 +291,7 @@
                             </div>
                             <div class="modal-body">
                                 <div class="table-responsive">
-                                    <table class="table table-hover">
+                                    <table class="table table-hover table-dark">
                                         <thead>
                                             <tr>
                                                 <th>Professional</th>
@@ -55,23 +306,23 @@
                                             {% if provider.is_verified and not provider.is_blocked %}
                                             <tr>
                                                 <td>
-                                                    <img src="https://api.dicebear.com/9.x/lorelei/svg?seed={{provider.username}}" 
-                                                         class="rounded-circle me-2" style="width: 32px; height: 32px;">
+                                                    <img src="https://api.dicebear.com/9.x/lorelei/svg?seed={{provider.username}}"
+                                                        class="rounded-circle me-2" style="width: 32px; height: 32px;">
                                                     {{ provider.name }}
                                                 </td>
                                                 <td>{{ provider.experience }}</td>
                                                 <td>
                                                     {% if provider.rating_count > 0 %}
-                                                        {{ "⭐" * (provider.avg_rating|round|int) }}
-                                                        ({{ provider.rating_count }})
+                                                    {{ "⭐" * (provider.avg_rating|round|int) }}
+                                                    ({{ provider.rating_count }})
                                                     {% else %}
-                                                        New
+                                                    New
                                                     {% endif %}
                                                 </td>
                                                 <td>{{ provider.pincode }}</td>
                                                 <td>
-                                                    <button class="btn btn-success btn-sm" data-bs-toggle="modal"
-                                                            data-bs-target="#bookingModal{{ service.id }}_{{ provider.id }}">
+                                                    <button class="btn btn-gradient-success btn-sm" data-bs-toggle="modal"
+                                                        data-bs-target="#bookingModal{{ service.id }}_{{ provider.id }}">
                                                         Select
                                                     </button>
                                                 </td>
@@ -89,7 +340,7 @@
                 <!-- Booking Modal -->
                 {% for provider in service.providers %}
                 {% if provider.is_verified and not provider.is_blocked %}
-                <div class="modal fade" id="bookingModal{{ service.id }}_{{ provider.id }}">
+                <div class="modal fade modal-dark" id="bookingModal{{ service.id }}_{{ provider.id }}">
                     <div class="modal-dialog">
                         <div class="modal-content">
                             <div class="modal-header">
@@ -101,17 +352,17 @@
                                     <input type="hidden" name="provider_id" value="{{ provider.id }}">
                                     <div class="mb-3">
                                         <label class="form-label">Service Details</label>
-                                        <textarea class="form-control" name="description" rows="3" 
-                                                  placeholder="Describe your service requirement" required></textarea>
+                                        <textarea class="form-control form-control" name="description" rows="3"
+                                            placeholder="Describe your service requirement" required></textarea>
                                     </div>
-                                    <p class="text-muted">
+                                    <p class="text">
                                         Professional: {{ provider.name }}<br>
                                         Base Price: ₹{{ service.price }}
                                     </p>
                                 </div>
                                 <div class="modal-footer">
-                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                                    <button type="submit" class="btn btn-primary">Confirm Booking</button>
+                                    <button type="button" class="btn btn-gradient-warning" data-bs-dismiss="modal">Cancel</button>
+                                    <button type="submit" class="btn btn-gradient-primary">Confirm Booking</button>
                                 </div>
                             </form>
                         </div>
@@ -126,9 +377,9 @@
 
     <!-- My Requests Section -->
     <section class="mb-5">
-        <h2>My Service Requests</h2>
+        <h2 class="section-title">My Service Requests</h2>
         <div class="table-responsive">
-            <table class="table table-hover">
+            <table class="table table-hover table-dark">
                 <thead>
                     <tr>
                         <th>Service</th>
@@ -144,43 +395,43 @@
                         <td>{{ req.service.service_name }}</td>
                         <td>
                             {% if req.provider %}
-                                <img src="https://api.dicebear.com/9.x/lorelei/svg?seed={{req.provider.username}}" 
-                                     class="rounded-circle me-2" style="width: 24px; height: 24px;">
-                                {{ req.provider.name }}
+                            <img src="https://api.dicebear.com/9.x/lorelei/svg?seed={{req.provider.username}}"
+                                class="rounded-circle me-2" style="width: 24px; height: 24px;">
+                            {{ req.provider.name }}
                             {% else %}
-                                <span class="badge bg-secondary">Unassigned</span>
+                            <span class="badge badge-gradient-warning">Unassigned</span>
                             {% endif %}
                         </td>
                         <td>
                             {% if req.status == 'Pending' %}
-                                <span class="badge bg-warning text-dark">Pending</span>
+                            <span class="badge badge-gradient-warning">Pending</span>
                             {% elif req.status == 'In Progress' %}
-                                <span class="badge bg-info">In Progress</span>
+                            <span class="badge badge-gradient-primary">In Progress</span>
                             {% elif req.status == 'Completed' %}
-                                <span class="badge bg-success">Completed</span>
+                            <span class="badge badge-gradient-success">Completed</span>
                             {% else %}
-                                <span class="badge bg-secondary">{{ req.status }}</span>
+                            <span class="badge badge-gradient-danger">{{ req.status }}</span>
                             {% endif %}
                         </td>
                         <td>{{ req.date_created.strftime('%Y-%m-%d') }}</td>
                         <td>
                             {% if req.status == 'In Progress' %}
-                                <button class="btn btn-success btn-sm" data-bs-toggle="modal"
-                                        data-bs-target="#closeModal{{ req.id }}">
-                                    Close Service
-                                </button>
+                            <button class="btn btn-gradient-success btn-sm" data-bs-toggle="modal"
+                                data-bs-target="#closeModal{{ req.id }}">
+                                Close Service
+                            </button>
                             {% elif req.status == 'Completed' and not req.rating_by_client %}
-                                <button class="btn btn-primary btn-sm" data-bs-toggle="modal"
-                                        data-bs-target="#ratingModal{{ req.id }}">
-                                    Rate Service
-                                </button>
+                            <button class="btn btn-gradient-primary btn-sm" data-bs-toggle="modal"
+                                data-bs-target="#ratingModal{{ req.id }}">
+                                Rate Service
+                            </button>
                             {% endif %}
                         </td>
                     </tr>
 
                     <!-- Close Service Modal -->
                     {% if req.status == 'In Progress' %}
-                    <div class="modal fade" id="closeModal{{ req.id }}">
+                    <div class="modal fade modal-dark" id="closeModal{{ req.id }}">
                         <div class="modal-dialog">
                             <div class="modal-content">
                                 <div class="modal-header">
@@ -193,8 +444,8 @@
                                         <p><small class="text-muted">You'll be prompted to rate the service after closing.</small></p>
                                     </div>
                                     <div class="modal-footer">
-                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                                        <button type="submit" class="btn btn-success">Close Service</button>
+                                        <button type="button" class="btn btn-gradient-warning" data-bs-dismiss="modal">Cancel</button>
+                                        <button type="submit" class="btn btn-gradient-success">Close Service</button>
                                     </div>
                                 </form>
                             </div>
@@ -204,7 +455,7 @@
 
                     <!-- Rating Modal -->
                     {% if req.status == 'Completed' and not req.rating_by_client %}
-                    <div class="modal fade" id="ratingModal{{ req.id }}">
+                    <div class="modal fade modal-dark" id="ratingModal{{ req.id }}">
                         <div class="modal-dialog">
                             <div class="modal-content">
                                 <div class="modal-header">
@@ -215,7 +466,7 @@
                                     <div class="modal-body">
                                         <div class="mb-3">
                                             <label class="form-label">Rating</label>
-                                            <select class="form-select" name="rating" required>
+                                            <select class="form-select form-select-dark" name="rating" required>
                                                 <option value="5">⭐⭐⭐⭐⭐ Excellent</option>
                                                 <option value="4">⭐⭐⭐⭐ Very Good</option>
                                                 <option value="3">⭐⭐⭐ Good</option>
@@ -225,13 +476,13 @@
                                         </div>
                                         <div class="mb-3">
                                             <label class="form-label">Review</label>
-                                            <textarea class="form-control" name="review" rows="3" 
-                                                      placeholder="Share your experience" required></textarea>
+                                            <textarea class="form-control form-control-dark" name="review" rows="3"
+                                                placeholder="Share your experience" required></textarea>
                                         </div>
                                     </div>
                                     <div class="modal-footer">
-                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                                        <button type="submit" class="btn btn-primary">Submit Rating</button>
+                                        <button type="button" class="btn btn-gradient-warning" data-bs-dismiss="modal">Cancel</button>
+                                        <button type="submit" class="btn btn-gradient-primary">Submit Rating</button>
                                     </div>
                                 </form>
                             </div>
