@@ -8,7 +8,7 @@
   ```
   pip install -r requirements.txt
   ```
-- After successful installation of the required modules, run the `main.py` file using the following command:
+- After successful installation of the required modules, run the `app.py` file using the following command:
   ```
   python app.py
   ```
