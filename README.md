@@ -1,6 +1,8 @@
 # HouseHelp-Hub
  Implies fast and efficient problem-solving for home needs.
 
+# Linkedin
+ [Househelp-hub Video Demonstrations](https://www.linkedin.com/feed/update/urn:li:activity:7277898134616236032/)
 
 ### Instructions to Run the Application
 
